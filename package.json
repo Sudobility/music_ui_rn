@@ -73,7 +73,9 @@
     "react-native-svg": ">=13.0.0",
     "tailwind-merge": ">=2.0.0",
     "zustand": ">=5.0.0",
-    "@sudobility/music_synth_rn": "^0.0.3"
+    "@sudobility/music_synth_rn": "^0.0.3",
+    "@sudobility/music_client": "^0.4.105",
+    "@tanstack/react-query": "^5"
   },
   "peerDependenciesMeta": {
     "@react-native-community/slider": {
@@ -136,7 +138,9 @@
     "vite": "~8.3.5",
     "vite-plugin-dts": "~4.5.4",
     "zustand": "~5.0.16",
-    "@sudobility/music_synth_rn": "^0.0.3"
+    "@sudobility/music_synth_rn": "^0.0.3",
+    "@sudobility/music_client": "^0.4.105",
+    "@tanstack/react-query": "^5"
   },
   "repository": {
     "type": "git",
