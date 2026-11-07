@@ -72,7 +72,8 @@
     "react-native-safe-area-context": ">=4.0.0",
     "react-native-svg": ">=13.0.0",
     "tailwind-merge": ">=2.0.0",
-    "zustand": ">=5.0.0"
+    "zustand": ">=5.0.0",
+    "@sudobility/music_synth_rn": "^0.0.3"
   },
   "peerDependenciesMeta": {
     "@react-native-community/slider": {
@@ -134,7 +135,8 @@
     "typescript": "~6.0.3",
     "vite": "~8.3.5",
     "vite-plugin-dts": "~4.5.4",
-    "zustand": "~5.0.16"
+    "zustand": "~5.0.16",
+    "@sudobility/music_synth_rn": "^0.0.3"
   },
   "repository": {
     "type": "git",
