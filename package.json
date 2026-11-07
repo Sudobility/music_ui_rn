@@ -75,7 +75,8 @@
     "zustand": ">=5.0.0",
     "@sudobility/music_synth_rn": "^0.0.3",
     "@sudobility/music_client": "^0.4.105",
-    "@tanstack/react-query": "^5"
+    "@tanstack/react-query": "^5",
+    "@sudobility/music_spatial_rn": "^0.0.38"
   },
   "peerDependenciesMeta": {
     "@react-native-community/slider": {
@@ -140,7 +141,8 @@
     "zustand": "~5.0.16",
     "@sudobility/music_synth_rn": "^0.0.3",
     "@sudobility/music_client": "^0.4.105",
-    "@tanstack/react-query": "^5"
+    "@tanstack/react-query": "^5",
+    "@sudobility/music_spatial_rn": "^0.0.38"
   },
   "repository": {
     "type": "git",
