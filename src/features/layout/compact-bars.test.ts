@@ -7,7 +7,6 @@
  * tablet/desktop window such as an iPad split view (compact). So the device and
  * the measured width are both read, and this pins each case.
  */
-import { describe, expect, it } from 'vitest';
 import { barsCompact, COMPACT_BAR_MAX_WIDTH } from './compact-bars';
 
 describe('barsCompact', () => {

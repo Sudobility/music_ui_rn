@@ -76,10 +76,18 @@
     "@sudobility/music_synth_rn": "^0.0.3",
     "@sudobility/music_client": "^0.4.105",
     "@tanstack/react-query": "^5",
-    "@sudobility/music_spatial_rn": "^0.0.38"
+    "@sudobility/music_spatial_rn": "^0.0.38",
+    "@moosiac/playhead": "^0.0.0",
+    "@sudobility/windows_canvas_rn": "^0.2.14"
   },
   "peerDependenciesMeta": {
     "@react-native-community/slider": {
+      "optional": true
+    },
+    "@moosiac/playhead": {
+      "optional": true
+    },
+    "@sudobility/windows_canvas_rn": {
       "optional": true
     }
   },
@@ -142,7 +150,9 @@
     "@sudobility/music_synth_rn": "^0.0.3",
     "@sudobility/music_client": "^0.4.105",
     "@tanstack/react-query": "^5",
-    "@sudobility/music_spatial_rn": "^0.0.38"
+    "@sudobility/music_spatial_rn": "^0.0.38",
+    "@moosiac/playhead": "^0.0.0",
+    "@sudobility/windows_canvas_rn": "^0.2.14"
   },
   "repository": {
     "type": "git",

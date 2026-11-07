@@ -6,3 +6,4 @@ export * from './inspector';
 export * from './print';
 export * from './spatial';
 export * from './piano-keyboard';
+export * from './score';

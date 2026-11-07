@@ -6,7 +6,6 @@
  * `useContainerSize` answers 0×0 and this rule is never exercised. It shipped
  * wrong for exactly that reason and only the simulator caught it.
  */
-import { describe, expect, it } from 'vitest';
 import {
   INSPECTOR_COLUMN_WIDTH,
   MIN_SCORE_WIDTH,
