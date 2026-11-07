@@ -3,3 +3,4 @@ export * from './layout';
 export * from './transport';
 export * from './generation';
 export * from './inspector';
+export * from './print';
