@@ -31,16 +31,24 @@ export type SpatialSectionProps = {
    * has no document — a visitor listens in 3D to a score nobody here edits.
    */
   store: MusicDocument['store'];
+  /**
+   * Force the stage locked or unlocked, overriding the editor's own rule
+   * (the arrangement locks while the score's editing is locked, e.g. during
+   * playback). A playback-only host passes `false` so the listener and
+   * tracks can always be moved; the editor omits it and takes the rule.
+   */
+  locked?: boolean;
 };
 
-export function SpatialSection({ store }: SpatialSectionProps) {
+export function SpatialSection({ store, locked }: SpatialSectionProps) {
   const { t } = useTranslation();
   const ink = useNotationInk();
   const score = useStore(store, s => s.score);
-  const locked = useStore(
+  const ruleLocked = useStore(
     store,
     s => selectEditLocked(s) && controlLocked(s, 'unpluggedArrangement'),
   );
+  const effectiveLocked = locked ?? ruleLocked;
   const soundingTrackIds = useSoundingTrackIds();
 
   useEffect(() => {
@@ -53,7 +61,7 @@ export function SpatialSection({ store }: SpatialSectionProps) {
     <SpatialView
       score={score}
       soundingTrackIds={soundingTrackIds}
-      locked={locked}
+      locked={effectiveLocked}
       onMoveListener={patch => store.getState().setUnpluggedListener(patch)}
       onMoveTrack={(trackId, point) =>
         store.getState().setUnpluggedTrackPosition(trackId, point)

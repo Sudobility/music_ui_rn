@@ -464,7 +464,7 @@ export function TransportBar({
  * reports per percent, and read at the bar's top level each of those would
  * re-render every control in the row. Here it touches one button.
  */
-function PlayPauseButton({
+export function PlayPauseButton({
   playing,
   disabled = false,
   onPress,
@@ -541,7 +541,7 @@ export const MeasureBeatReadout = memo(function MeasureBeatReadout({
 });
 
 /** Elapsed time over total. Also its own subscriber, for the same reason. */
-const Timecode = memo(function Timecode({
+export const Timecode = memo(function Timecode({
   transport,
   tempoMap,
   maxTick,
@@ -576,7 +576,7 @@ const Timecode = memo(function Timecode({
  * Painted from a local draft while dragging, so the fill follows the finger
  * rather than waiting for the engine's next position report.
  */
-const PositionScrubber = memo(function PositionScrubber({
+export const PositionScrubber = memo(function PositionScrubber({
   maxTick,
   transport,
 }: {
@@ -602,6 +602,39 @@ const PositionScrubber = memo(function PositionScrubber({
         onSlidingComplete={next => {
           setDragging(null);
           transport.seek(next);
+        }}
+      />
+    </View>
+  );
+});
+
+/**
+ * The master volume as a self-contained control: its own draft seeded from the
+ * store's `masterVolume`, continuous while the finger moves. Exported so a
+ * playback-only transport (the player app's `PlayerTransport`) can compose the
+ * same control the editor bar builds inline.
+ */
+export const MasterVolume = memo(function MasterVolume({
+  store,
+  transport,
+}: {
+  store: TransportStoreApi;
+  transport: Pick<TransportBinding, 'setMasterVolume'>;
+}) {
+  const { t } = useTranslation();
+  const masterVolume = useStore(store, s => s.masterVolume);
+  const [volumeDraft, setVolumeDraft] = useState(masterVolume);
+  useEffect(() => setVolumeDraft(masterVolume), [masterVolume]);
+  return (
+    <View className="w-32 flex-row items-center gap-1">
+      <Text className="text-foreground text-sm">{t('transport.volume')}</Text>
+      <LevelSlider
+        className="flex-1"
+        label={t('transport.masterVolume')}
+        value={volumeDraft}
+        onChange={next => {
+          setVolumeDraft(next);
+          transport.setMasterVolume(next);
         }}
       />
     </View>
