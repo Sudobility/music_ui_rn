@@ -31,6 +31,7 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 import { OTTAVAS } from '@sudobility/music_types';
+import { noteInspectorModel } from '@sudobility/music_lib';
 import { View } from 'react-native';
 import { useStore } from 'zustand';
 import { useTranslation } from 'react-i18next';
@@ -67,12 +68,8 @@ import {
   PITCH_STEPS,
   barBeatCommitTick,
   barBeatForTick,
-  commonValue,
-  durationFieldState,
   findEvent,
-  findTrack,
   formatBeatForField,
-  voiceNumberOf,
 } from '@sudobility/music_types';
 import type {
   Accidental,
@@ -147,27 +144,24 @@ export function NoteTab({
   if (!first) return <EmptyTab message={t('inspector.selectNote')} />;
 
   const mixed = t('inspector.mixed');
-  const step = commonValue(notes.map(n => shown(n).step));
-  const accidental = commonValue(notes.map(n => String(shown(n).accidental)));
-  const octave = commonValue(notes.map(n => shown(n).octave));
-  /*
-    Three states, not two: a name, one custom length the selection agrees on
-    (a tie join or an import can make a length no notehead spells), or a
-    selection that disagrees. This field used to derive them from two
-    `commonValue`s and reported every tie-joined note as Mixed until that was
-    patched here; `durationFieldState` is the web's answer to the same question.
-  */
-  const duration = durationFieldState(notes, score.ppq);
-  const velocity = commonValue(notes.map(n => n.velocity));
-  const articulation = commonValue(notes.map(n => n.articulation ?? NO_MARK));
-  const dynamic = commonValue(notes.map(n => n.dynamic ?? NO_MARK));
-  const trackName = commonValue(
-    notes.map(n => findTrack(score, n.trackId)?.name ?? '?'),
-  );
-  const voice = commonValue(notes.map(n => voiceNumberOf(score, n)));
-  const tieStart = commonValue(notes.map(n => n.tieStart === true));
-  const tieStop = commonValue(notes.map(n => n.tieStop === true));
-  const graceCount = first.graceNotes?.length ?? 0;
+  // The "Mixed"-aware field derivation is music_lib's, shared with the web
+  // panel, so the two cannot drift. (The `duration` field is three-state: a
+  // name, one custom length the selection agrees on, or Mixed — which a plain
+  // `commonValue` could not spell for tie-joined notes.)
+  const {
+    step,
+    accidental,
+    octave,
+    duration,
+    velocity,
+    articulation,
+    dynamic,
+    trackName,
+    voice,
+    tieStart,
+    tieStop,
+    graceCount,
+  } = noteInspectorModel(notes, score, pitchDisplay);
 
   return (
     <View className="gap-3">
