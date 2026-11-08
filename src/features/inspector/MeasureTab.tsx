@@ -116,7 +116,7 @@ export function MeasureTab({
   const measureIds = measures.map(m => m.id);
   const timeSig = commonValue(measures.map(m => m.timeSignature));
   const keySig: KeySignature | null = commonValue(
-    measures.map(m => m.keySignature ?? { fifths: 0, mode: 'major' as const }),
+    measures.map(m => m.keySignature ?? { fifths: 0, mode: 'major' as const })
   );
   const keyMode = keySig?.mode ?? 'major';
 
@@ -130,7 +130,7 @@ export function MeasureTab({
     ...new Set(
       measures
         .map(m => barNumberAt(grid, m.index))
-        .filter((n): n is number => n !== null),
+        .filter((n): n is number => n !== null)
     ),
   ];
   const heading =
@@ -146,8 +146,8 @@ export function MeasureTab({
   const single = measures.length === 1;
 
   return (
-    <View className="gap-3">
-      <Text className="text-foreground text-base font-semibold">{heading}</Text>
+    <View className='gap-3'>
+      <Text className='text-foreground text-base font-semibold'>{heading}</Text>
 
       {/*
         The numerator is typed (bounded by `MAX_TIME_SIG_NUMERATOR`); the
@@ -161,7 +161,7 @@ export function MeasureTab({
           points and the picker at 36, so the fraction read as two controls
           that happened to be neighbours.
         */}
-        <View className="flex-row items-center gap-2">
+        <View className='flex-row items-center gap-2'>
           <FieldSlot grow>
             <NumberDraftInput
               className={SLOT_FIELD_CLASS}
@@ -180,8 +180,8 @@ export function MeasureTab({
               }
             />
           </FieldSlot>
-          <Text className="text-muted-foreground text-base">/</Text>
-          <View className="flex-1">
+          <Text className='text-muted-foreground text-base'>/</Text>
+          <View className='flex-1'>
             <Select
               className={SLOT_SELECT_CLASS}
               value={timeSig ? String(timeSig.denominator) : ''}
@@ -210,8 +210,8 @@ export function MeasureTab({
         picker sits beside the key rather than under it.
       */}
       <Field label={t('inspector.key')}>
-        <View className="flex-row gap-2">
-          <View className="flex-1">
+        <View className='flex-row gap-2'>
+          <View className='flex-1'>
             <Select
               value={keySig ? String(keySig.fifths) : ''}
               placeholder={t('inspector.mixed')}
@@ -229,7 +229,7 @@ export function MeasureTab({
               }
             />
           </View>
-          <View className="flex-1">
+          <View className='flex-1'>
             <Select
               value={keySig?.mode ?? ''}
               placeholder={t('inspector.mixed')}
@@ -302,7 +302,7 @@ export function MeasureTab({
       {onReplace ? (
         <ReplaceButton
           document={document}
-          scope="measures"
+          scope='measures'
           label={t('inspector.replaceMeasures')}
           onReplace={onReplace}
         />
@@ -344,7 +344,7 @@ function TempoField({ document, score, measure, locked }: BarFieldProps) {
       />
       {here.ownEventId && !here.isStarting ? (
         <Button
-          variant="ghost"
+          variant='ghost'
           disabled={locked}
           onPress={() => {
             if (here.ownEventId) removeTempoAt(document.store, here.ownEventId);
@@ -353,7 +353,7 @@ function TempoField({ document, score, measure, locked }: BarFieldProps) {
           {t('editor.removeTempoChange')}
         </Button>
       ) : (
-        <Text className="text-muted-foreground text-sm">
+        <Text className='text-muted-foreground text-sm'>
           {here.ownEventId
             ? t('inspector.tempoStarting')
             : t('inspector.tempoInherited')}
@@ -395,7 +395,7 @@ function ClefField({ document, score, measure, locked }: BarFieldProps) {
           setClefAtMeasure(
             document.store,
             measure.id,
-            next === INHERIT_CLEF ? undefined : (next as Clef),
+            next === INHERIT_CLEF ? undefined : (next as Clef)
           )
         }
       />
@@ -426,7 +426,7 @@ function BarlineField({ document, score, measure, locked }: BarFieldProps) {
           setBarline(
             document.store,
             index,
-            value === SINGLE_BARLINE ? undefined : (value as BarlineStyle),
+            value === SINGLE_BARLINE ? undefined : (value as BarlineStyle)
           )
         }
       />
@@ -447,7 +447,7 @@ function NavigationFields({ document, score, measure, locked }: BarFieldProps) {
   const store = document.store;
   return (
     <>
-      <Text className="text-muted-foreground text-sm">
+      <Text className='text-muted-foreground text-sm'>
         {t('inspector.navigation')}
       </Text>
       <Toggle
@@ -541,7 +541,7 @@ function RepeatFields({ document, measure, locked }: BarFieldProps) {
   const store = document.store;
   return (
     <>
-      <Text className="text-muted-foreground text-sm">
+      <Text className='text-muted-foreground text-sm'>
         {t('editor.repeats')}
       </Text>
       <Toggle
@@ -573,7 +573,7 @@ function RepeatFields({ document, measure, locked }: BarFieldProps) {
           }
         />
       </Field>
-      <Text className="text-muted-foreground text-sm">
+      <Text className='text-muted-foreground text-sm'>
         {t('editor.repeatsPlaybackNote')}
       </Text>
     </>
@@ -604,7 +604,7 @@ function DraftTextField({
       onChangeText={onChange}
       onBlur={onCommit}
       onSubmitEditing={onCommit}
-      keyboardType="numeric"
+      keyboardType='numeric'
       editable={editable}
       accessibilityLabel={accessibilityLabel}
     />
@@ -623,7 +623,7 @@ function DraftTextField({
 function keyOptionLabel(
   t: TFunction,
   option: KeySignatureOption,
-  mode: KeySignature['mode'],
+  mode: KeySignature['mode']
 ): string {
   const accidentals =
     option.accidentalKind === 'none'
@@ -632,11 +632,11 @@ function keyOptionLabel(
           option.accidentalKind === 'sharp'
             ? 'inspector.keySharps'
             : 'inspector.keyFlats',
-          { count: option.accidentalCount },
+          { count: option.accidentalCount }
         );
   return t(
     mode === 'minor' ? 'inspector.keyOptionMinor' : 'inspector.keyOptionMajor',
-    { tonic: option.tonic, accidentals },
+    { tonic: option.tonic, accidentals }
   );
 }
 
@@ -652,8 +652,8 @@ function Toggle({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <View className="flex-row items-center justify-between">
-      <Text className="text-foreground text-base">{label}</Text>
+    <View className='flex-row items-center justify-between'>
+      <Text className='text-foreground text-base'>{label}</Text>
       <Switch
         checked={checked}
         disabled={disabled ?? false}

@@ -34,7 +34,7 @@ export function ReplaceButton({
   const available = useStore(document.store, s => canReplace(s, scope));
   return (
     <Button
-      variant="secondary"
+      variant='secondary'
       disabled={!available}
       onPress={() => onReplace(scope)}
       accessibilityLabel={label}

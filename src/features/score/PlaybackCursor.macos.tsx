@@ -28,7 +28,7 @@ export function PlaybackCursor({
 
   return (
     <View
-      pointerEvents="none"
+      pointerEvents='none'
       style={[
         StyleSheet.absoluteFill,
         {

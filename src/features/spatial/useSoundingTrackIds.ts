@@ -45,7 +45,8 @@ export function useSoundingTrackIds(): ReadonlySet<string> {
     });
   }, []);
   const get = useCallback(() => {
-    const notes = latest.current ?? getMusicPlayerIfInitialized()?.bus?.sounding ?? [];
+    const notes =
+      latest.current ?? getMusicPlayerIfInitialized()?.bus?.sounding ?? [];
     const next = trackIdsOf(notes);
     if (!sameIdSet(next, kept.current)) kept.current = next;
     return kept.current;

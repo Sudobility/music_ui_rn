@@ -164,7 +164,7 @@ export function ScoreSetupFields({
   */
   const { data: presetKeys } = useScorePresets(
     serverContext,
-    draft.style || undefined,
+    draft.style || undefined
   );
   const { data: styleSettings } = useScoreStyleSettings(serverContext);
   const localTempoRange = newProjectTempoRange(draft);
@@ -174,13 +174,13 @@ export function ScoreSetupFields({
   const tempoMin = styleSetting?.minBpm ?? localTempoRange?.[0] ?? 40;
   const tempoMax = styleSetting?.maxBpm ?? localTempoRange?.[1] ?? 240;
   const keyOptions = GENERATE_SCORE_KEY_FIFTHS_OPTIONS.filter(
-    option => !styleSetting || styleSetting.keys.includes(option.fifths),
+    option => !styleSetting || styleSetting.keys.includes(option.fifths)
   );
   const modeOptions = (['major', 'minor'] as const).filter(
-    mode => !styleSetting?.mode || styleSetting.mode === mode,
+    mode => !styleSetting?.mode || styleSetting.mode === mode
   );
   const meterOptions = Object.keys(
-    GENERATE_SCORE_TIME_SIGNATURE_OPTIONS,
+    GENERATE_SCORE_TIME_SIGNATURE_OPTIONS
   ).filter(meter => !styleSetting || styleSetting.timeSignature === meter);
   const presets = (presetKeys ?? [])
     .filter(key => i18n.exists(`generateScore.preset.${key}`))
@@ -201,13 +201,13 @@ export function ScoreSetupFields({
     value => t(styleLabelKey(value)),
     family => t(styleFamilyLabelKey(family)),
     i18n.language,
-    t('generateScore.noStyle'),
+    t('generateScore.noStyle')
   );
   const moodOptions = labelledOptions(
     GENERATE_SCORE_MOOD_OPTIONS,
     value => t(moodLabelKey(value)),
     i18n.language,
-    t('generateScore.noMood'),
+    t('generateScore.noMood')
   );
   // Declaration order, not sorted: simple, moderate, complex is a scale, and
   // alphabetising it would put "complex" first.
@@ -251,7 +251,7 @@ export function ScoreSetupFields({
         {presets.length > 0 ? (
           <Field label={t('generateScore.presetPrompts')}>
             <Select
-              value=""
+              value=''
               placeholder={t('generate.presets')}
               accessibilityLabel={t('generateScore.presetPrompts')}
               options={presets}
@@ -303,7 +303,7 @@ export function ScoreSetupFields({
             not a lyric. music_lib drops the field from the request otherwise,
             rather than trusting this to stay in step with the roster. */}
         {showNewProjectLyrics(draft) ? (
-          <View className="flex-row items-center gap-3 pb-3">
+          <View className='flex-row items-center gap-3 pb-3'>
             <Switch
               checked={draft.lyrics}
               onCheckedChange={lyrics =>
@@ -311,11 +311,11 @@ export function ScoreSetupFields({
               }
               accessibilityLabel={t('newProject.writeLyrics')}
             />
-            <View className="flex-1">
-              <Text className="text-foreground text-base">
+            <View className='flex-1'>
+              <Text className='text-foreground text-base'>
                 {t('newProject.writeLyrics')}
               </Text>
-              <Text className="text-muted-foreground text-sm">
+              <Text className='text-muted-foreground text-sm'>
                 {t('newProject.writeLyricsHint')}
               </Text>
             </View>
@@ -366,14 +366,14 @@ export function ScoreSetupFields({
         without it while a model writes the music.
       */}
       <Field label={t('generateScore.instrumentation')}>
-        <View className="gap-2">
+        <View className='gap-2'>
           {draft.ensemble.map(entry => {
             const locked = isNewProjectEntryLocked(draft, entry);
             return (
               // The picker and the button that removes it, at one height:
               // they came at 36 and 32 points.
-              <View key={entry.id} className="flex-row items-center gap-2">
-                <View className="flex-1">
+              <View key={entry.id} className='flex-row items-center gap-2'>
+                <View className='flex-1'>
                   <Select
                     className={SLOT_SELECT_CLASS}
                     value={entry.value}
@@ -390,19 +390,19 @@ export function ScoreSetupFields({
                   />
                 </View>
                 {locked ? (
-                  <Text className="text-muted-foreground text-sm">
+                  <Text className='text-muted-foreground text-sm'>
                     {lockedLabel}
                   </Text>
                 ) : (
                   <FieldSlot>
                     <Button
-                      variant="ghost"
+                      variant='ghost'
                       className={SLOT_BUTTON_CLASS}
                       disabled={!canRemoveNewProjectEntry(draft, entry)}
                       accessibilityLabel={t('generateScore.removeInstrument', {
                         instrument:
                           INSTRUMENT_OPTIONS.find(
-                            option => option.value === entry.value,
+                            option => option.value === entry.value
                           )?.label ?? entry.value,
                       })}
                       onPress={() =>
@@ -416,10 +416,10 @@ export function ScoreSetupFields({
               </View>
             );
           })}
-          <View className="flex-row">
+          <View className='flex-row'>
             <Button
-              variant="outline"
-              size="sm"
+              variant='outline'
+              size='sm'
               onPress={() =>
                 dispatch({
                   type: 'addInstrument',
@@ -438,7 +438,7 @@ export function ScoreSetupFields({
           <Input
             value={draft.measuresText}
             onChangeText={text => dispatch({ type: 'setBars', text })}
-            keyboardType="number-pad"
+            keyboardType='number-pad'
             accessibilityLabel={t('generateScore.measures')}
           />
         </Field>
@@ -479,7 +479,7 @@ export function ScoreSetupFields({
                 text: String(Math.min(tempoMax, Math.max(tempoMin, tempo))),
               });
             }}
-            keyboardType="number-pad"
+            keyboardType='number-pad'
             accessibilityLabel={t('generateScore.tempo')}
           />
         </Field>
@@ -527,7 +527,7 @@ export function ScoreSetupFields({
 
 /** Controls side by side, as the web dialog lays them out — one per row wasted the width. */
 function Row({ children }: { children: ReactNode }) {
-  return <View className="flex-row gap-2">{children}</View>;
+  return <View className='flex-row gap-2'>{children}</View>;
 }
 
 function Field({
@@ -545,9 +545,9 @@ function Field({
 }) {
   return (
     <View className={grow ? 'min-w-0 flex-1 gap-1 pb-3' : 'gap-1 pb-3'}>
-      <Text className="text-muted-foreground text-sm">{label}</Text>
+      <Text className='text-muted-foreground text-sm'>{label}</Text>
       {children}
-      {hint ? <Text className="text-destructive text-sm">{hint}</Text> : null}
+      {hint ? <Text className='text-destructive text-sm'>{hint}</Text> : null}
     </View>
   );
 }

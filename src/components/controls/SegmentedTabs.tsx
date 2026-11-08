@@ -27,5 +27,5 @@ export type SegmentedTabsProps = {
 };
 
 export function SegmentedTabs(props: SegmentedTabsProps) {
-  return <SegmentedControl {...props} triggerClassName="px-2" />;
+  return <SegmentedControl {...props} triggerClassName='px-2' />;
 }

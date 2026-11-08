@@ -60,7 +60,7 @@ it('samples the current shared motion and atomically applies a new row and scrol
   });
   const scroll = signal({ left: 0, top: 0 });
   const view = render(
-    <PlaybackCursor cursor={cursor} scroll={scroll} color="red" />,
+    <PlaybackCursor cursor={cursor} scroll={scroll} color='red' />
   );
   expect(mockNativeProps.mock.calls.at(-1)?.[0].style.transform).toEqual([
     { translateX: 29 },
@@ -84,7 +84,7 @@ it('samples the current shared motion and atomically applies a new row and scrol
       },
       motion: { tick: 50, atMs: now, ticksPerSecond: 10 },
       id: 2,
-    }),
+    })
   );
   expect(mockNativeProps.mock.calls.at(-1)?.[0].style.transform).toEqual([
     { translateX: 299 },

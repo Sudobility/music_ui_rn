@@ -107,7 +107,7 @@ export function useScoreCanvas({
       cursor: createSignal<CursorState>(EMPTY_CURSOR),
       scroll: createSignal<ScrollOffset>({ left: 0, top: 0 }),
     }),
-    [],
+    []
   );
 
   const canvas = useMemo(() => {
@@ -128,10 +128,9 @@ export function useScoreCanvas({
             commits.record(performance.now() - shownAt);
           },
         });
-      },
+      }
     );
-    let canvas: ScoreCanvas;
-    canvas = new ScoreCanvas({
+    const canvas: ScoreCanvas = new ScoreCanvas({
       scheduler: {
         frame: callback => {
           const id = requestAnimationFrame(callback);

@@ -41,7 +41,7 @@ export type PositionSource = {
  */
 export function useOnPositionFrame(
   source: PositionSource,
-  handler: (scoreTick: number) => void,
+  handler: (scoreTick: number) => void
 ): void {
   const handlerRef = useRef(handler);
   handlerRef.current = handler;
@@ -66,7 +66,7 @@ export function useOnPositionFrame(
 
 export function usePositionReadout(
   source: PositionSource,
-  format: (tick: number) => string,
+  format: (tick: number) => string
 ): string {
   const formatRef = useRef(format);
   formatRef.current = format;

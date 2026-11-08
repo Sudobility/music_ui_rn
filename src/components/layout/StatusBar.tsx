@@ -46,14 +46,14 @@ export function StatusBar({
   const openIssues = () => setIssuesOpen(true);
 
   return (
-    <View className="bg-card flex-row items-center gap-3 px-3 py-1">
-      <Text className="text-muted-foreground text-sm" numberOfLines={1}>
+    <View className='bg-card flex-row items-center gap-3 px-3 py-1'>
+      <Text className='text-muted-foreground text-sm' numberOfLines={1}>
         {selectionSummaryLabel(selection, libraryCopy.selection(), regenerated)}
       </Text>
-      <View className="flex-1" />
+      <View className='flex-1' />
       {issues.length > 0 ? (
         <Pressable
-          accessibilityRole="button"
+          accessibilityRole='button'
           accessibilityLabel={t('editor.validationIssues')}
           onPress={openIssues}
           // macOS has no synthesized-touch fallback for an assistive press, so

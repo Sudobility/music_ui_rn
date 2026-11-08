@@ -47,8 +47,8 @@ export function SynthLoadIndicator({ store }: { store: TransportStoreApi }) {
     return (
       // The role sits on the wrapper: this package's `Text` styles text and
       // takes no accessibility props of its own.
-      <View accessibilityRole="alert" className="shrink">
-        <Text className="text-destructive text-sm" numberOfLines={1}>
+      <View accessibilityRole='alert' className='shrink'>
+        <Text className='text-destructive text-sm' numberOfLines={1}>
           {t('transport.loadFailed')}
         </Text>
       </View>
@@ -62,11 +62,11 @@ export function SynthLoadIndicator({ store }: { store: TransportStoreApi }) {
       : t('transport.preparing', { percent });
   return (
     <View
-      accessibilityRole="progressbar"
+      accessibilityRole='progressbar'
       accessibilityLabel={label}
-      className="shrink flex-row items-center gap-2"
+      className='shrink flex-row items-center gap-2'
     >
-      <Text className="text-muted-foreground shrink text-sm" numberOfLines={1}>
+      <Text className='text-muted-foreground shrink text-sm' numberOfLines={1}>
         {label}
       </Text>
       {/*
@@ -76,9 +76,9 @@ export function SynthLoadIndicator({ store }: { store: TransportStoreApi }) {
         words alone.
       */}
       {percent === null ? null : (
-        <View className="bg-border h-1 w-12 overflow-hidden rounded-full">
+        <View className='bg-border h-1 w-12 overflow-hidden rounded-full'>
           <View
-            className="bg-muted-foreground h-full rounded-full"
+            className='bg-muted-foreground h-full rounded-full'
             style={{ width: `${percent}%` }}
           />
         </View>

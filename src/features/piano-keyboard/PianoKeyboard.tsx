@@ -129,7 +129,7 @@ const Key = memo(function Key({
   return (
     <>
       <Pressable
-        accessibilityRole="button"
+        accessibilityRole='button'
         // The spelled-out name, not the printed label: a black key prints
         // nothing and a drum key prints an abbreviation, and both still have to
         // announce what they are.
@@ -155,7 +155,7 @@ const Key = memo(function Key({
             backgroundColor: keyboardKeyFill(
               pianoKey,
               { lit, selected },
-              theme,
+              theme
             ),
           },
         ]}

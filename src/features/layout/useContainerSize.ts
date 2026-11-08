@@ -34,7 +34,7 @@ export function useContainerSize(): Measured {
       // size would re-render the score renderer for nothing.
       previous.width === width && previous.height === height
         ? previous
-        : { width, height },
+        : { width, height }
     );
   }, []);
 

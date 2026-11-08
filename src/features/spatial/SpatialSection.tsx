@@ -46,7 +46,7 @@ export function SpatialSection({ store, locked }: SpatialSectionProps) {
   const score = useStore(store, s => s.score);
   const ruleLocked = useStore(
     store,
-    s => selectEditLocked(s) && controlLocked(s, 'unpluggedArrangement'),
+    s => selectEditLocked(s) && controlLocked(s, 'unpluggedArrangement')
   );
   const effectiveLocked = locked ?? ruleLocked;
   const soundingTrackIds = useSoundingTrackIds();

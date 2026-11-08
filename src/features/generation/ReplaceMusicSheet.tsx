@@ -95,7 +95,7 @@ export function ReplaceMusicSheet({
     setDraft(current => ({ ...current, ...next }));
   const setConstraint = (
     key: keyof ReplaceDraft['constraints'],
-    value: boolean,
+    value: boolean
   ): void =>
     setDraft(current => ({
       ...current,
@@ -122,7 +122,7 @@ export function ReplaceMusicSheet({
       title={t(TITLE_KEY[scope])}
       onClose={submitting ? ignore : onClose}
       saving={submitting}
-      size="large"
+      size='large'
       closeAriaLabel={t('common.closeDialog')}
       actions={[
         {
@@ -143,7 +143,7 @@ export function ReplaceMusicSheet({
     >
       <>
         {estimatedCredits > 0 ? (
-          <Text className="text-muted-foreground pb-3 text-sm">
+          <Text className='text-muted-foreground pb-3 text-sm'>
             {t('generate.estimate', { count: estimatedCredits })}
           </Text>
         ) : null}
@@ -193,7 +193,7 @@ export function ReplaceMusicSheet({
               value => t(styleLabelKey(value)),
               family => t(styleFamilyLabelKey(family)),
               i18n.language,
-              t('generateScore.noStyle'),
+              t('generateScore.noStyle')
             )}
             onValueChange={value => patch({ style: optionalFromPicker(value) })}
           />
@@ -207,7 +207,7 @@ export function ReplaceMusicSheet({
               GENERATE_SCORE_MOOD_OPTIONS,
               value => t(moodLabelKey(value)),
               i18n.language,
-              t('generateScore.noMood'),
+              t('generateScore.noMood')
             )}
             onValueChange={value => patch({ mood: optionalFromPicker(value) })}
           />
@@ -254,7 +254,7 @@ export function ReplaceMusicSheet({
         />
 
         {!canSubmit ? (
-          <Text className="text-muted-foreground pt-2 text-sm">
+          <Text className='text-muted-foreground pt-2 text-sm'>
             {t('replace.nothingSelected')}
           </Text>
         ) : null}
@@ -265,8 +265,8 @@ export function ReplaceMusicSheet({
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <View className="gap-1 pb-3">
-      <Text className="text-muted-foreground text-sm">{label}</Text>
+    <View className='gap-1 pb-3'>
+      <Text className='text-muted-foreground text-sm'>{label}</Text>
       {children}
     </View>
   );
@@ -282,8 +282,8 @@ function Toggle({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <View className="flex-row items-center justify-between py-1">
-      <Text className="text-foreground flex-1 text-base">{label}</Text>
+    <View className='flex-row items-center justify-between py-1'>
+      <Text className='text-foreground flex-1 text-base'>{label}</Text>
       <Switch
         checked={checked}
         onCheckedChange={onChange}

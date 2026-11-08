@@ -162,7 +162,7 @@ export function TransportBar({
   */
   const { maxTick, totalSeconds } = useMemo(
     () => transportExtent(score),
-    [score],
+    [score]
   );
   /*
     Rounded for display as well as on commit: a score can arrive carrying a
@@ -176,7 +176,7 @@ export function TransportBar({
   // 1x speed — a live check that playback runs at the score's real tempo.
   const tempoMap = useMemo(
     () => new TempoMap([...score.tempoMap], score.ppq),
-    [score],
+    [score]
   );
 
   /*
@@ -203,7 +203,7 @@ export function TransportBar({
         transport.goToStart();
       }}
     >
-      <NotationIcon name="GoToStartIcon" color={ink.foreground} />
+      <NotationIcon name='GoToStartIcon' color={ink.foreground} />
     </IconButton>
   );
   const playButton = (
@@ -241,7 +241,7 @@ export function TransportBar({
       onPress={() => transport.setMetronome(!metronome)}
     >
       <NotationIcon
-        name="MetronomeIcon"
+        name='MetronomeIcon'
         color={metronome ? ink.primary : ink.foreground}
       />
     </IconButton>
@@ -256,23 +256,23 @@ export function TransportBar({
   const tempoControl = readOnly ? (
     <View
       accessibilityLabel={t('transport.tempoBpm')}
-      className="justify-center px-2"
+      className='justify-center px-2'
       style={{ minHeight: MIN_TOUCH_TARGET }}
     >
-      <Text className="text-foreground text-sm tabular-nums">
+      <Text className='text-foreground text-sm tabular-nums'>
         {`${currentBpm} BPM`}
       </Text>
     </View>
   ) : editingTempo ? (
     <Input
-      keyboardType="number-pad"
+      keyboardType='number-pad'
       accessibilityLabel={t('transport.tempoBpm')}
       value={tempoDraft}
       autoFocus
       onChangeText={setTempoDraft}
       onBlur={commitTempo}
       onSubmitEditing={commitTempo}
-      className="w-20"
+      className='w-20'
     />
   ) : (
     <IconButton
@@ -283,7 +283,7 @@ export function TransportBar({
         setEditingTempo(true);
       }}
     >
-      <Text className="text-foreground text-sm tabular-nums">
+      <Text className='text-foreground text-sm tabular-nums'>
         {`${currentBpm} BPM`}
       </Text>
     </IconButton>
@@ -299,7 +299,7 @@ export function TransportBar({
       value={String(speed)}
       onChange={value => transport.setTempoMultiplier(Number(value))}
     >
-      <Text className="text-foreground text-sm">{`${speed}x`}</Text>
+      <Text className='text-foreground text-sm'>{`${speed}x`}</Text>
     </ToolbarSelect>
   );
   const outputSelect = <AudioOutputSelect />;
@@ -309,10 +309,10 @@ export function TransportBar({
     transport.setMasterVolume(next);
   };
   const volumeControl = (
-    <View className="w-32 flex-row items-center gap-1">
-      <Text className="text-foreground text-sm">{t('transport.volume')}</Text>
+    <View className='w-32 flex-row items-center gap-1'>
+      <Text className='text-foreground text-sm'>{t('transport.volume')}</Text>
       <LevelSlider
-        className="flex-1"
+        className='flex-1'
         label={t('transport.masterVolume')}
         value={volumeDraft}
         onChange={onVolume}
@@ -320,7 +320,7 @@ export function TransportBar({
     </View>
   );
   const volumeSlider = (
-    <View className="w-40">
+    <View className='w-40'>
       <LevelSlider
         label={t('transport.masterVolume')}
         value={volumeDraft}
@@ -362,7 +362,7 @@ export function TransportBar({
       onPress={onToggleKeyboard}
     >
       <NotationIcon
-        name="PianoKeysIcon"
+        name='PianoKeysIcon'
         color={keyboardCollapsed ? ink.foreground : ink.onPrimary}
       />
     </IconButton>
@@ -401,10 +401,10 @@ export function TransportBar({
     ];
     return (
       <View
-        accessibilityRole="toolbar"
+        accessibilityRole='toolbar'
         accessibilityLabel={t('transport.transport')}
         onLayout={onBarLayout}
-        className="bg-card flex-row items-center gap-1 px-2 py-1"
+        className='bg-card flex-row items-center gap-1 px-2 py-1'
       >
         {resetButton}
         {playButton}
@@ -432,12 +432,12 @@ export function TransportBar({
 
   return (
     <View
-      accessibilityRole="toolbar"
+      accessibilityRole='toolbar'
       accessibilityLabel={t('transport.transport')}
       onLayout={onBarLayout}
       // Wraps to a second row only where it has to; a wide window fits one, and
       // a window narrow enough crosses the size-class threshold and collapses.
-      className="bg-card flex-row flex-wrap items-center gap-1 px-2 py-1"
+      className='bg-card flex-row flex-wrap items-center gap-1 px-2 py-1'
     >
       {resetButton}
       {playButton}
@@ -524,13 +524,13 @@ export const MeasureBeatReadout = memo(function MeasureBeatReadout({
 }) {
   const { t } = useTranslation();
   const readout = usePositionReadout(transport, tick =>
-    formatBarBeat(barBeatForTick(score, tick)),
+    formatBarBeat(barBeatForTick(score, tick))
   );
   return (
     // The name sits on a wrapper: this package's `Text` styles text and takes
     // no accessibility props of its own.
-    <View accessibilityLabel={t('transport.measureBeat')} className="w-20">
-      <Text className="text-foreground text-center text-base tabular-nums">
+    <View accessibilityLabel={t('transport.measureBeat')} className='w-20'>
+      <Text className='text-foreground text-center text-base tabular-nums'>
         {/* Shared with the web transport: this app floored the beat inline
             and the web one did not, so the same position rendered "1.1" here
             and "1.1.3333333333333333" there. */}
@@ -554,11 +554,11 @@ export const Timecode = memo(function Timecode({
 }) {
   const { t } = useTranslation();
   const elapsed = usePositionReadout(transport, tick =>
-    formatTimecode(tempoMap.ticksToSeconds(Math.min(tick, maxTick))),
+    formatTimecode(tempoMap.ticksToSeconds(Math.min(tick, maxTick)))
   );
   return (
-    <View accessibilityLabel={t('transport.time')} className="w-32">
-      <Text className="text-foreground text-right text-sm tabular-nums">
+    <View accessibilityLabel={t('transport.time')} className='w-32'>
+      <Text className='text-foreground text-right text-sm tabular-nums'>
         {`${elapsed} / ${formatTimecode(totalSeconds)}`}
       </Text>
     </View>
@@ -591,7 +591,7 @@ export const PositionScrubber = memo(function PositionScrubber({
   useOnPositionFrame(transport, setTick);
 
   return (
-    <View className="min-w-24 flex-1">
+    <View className='min-w-24 flex-1'>
       <LevelSlider
         label={t('transport.position')}
         value={dragging ?? Math.min(tick, maxTick)}
@@ -626,10 +626,10 @@ export const MasterVolume = memo(function MasterVolume({
   const [volumeDraft, setVolumeDraft] = useState(masterVolume);
   useEffect(() => setVolumeDraft(masterVolume), [masterVolume]);
   return (
-    <View className="w-32 flex-row items-center gap-1">
-      <Text className="text-foreground text-sm">{t('transport.volume')}</Text>
+    <View className='w-32 flex-row items-center gap-1'>
+      <Text className='text-foreground text-sm'>{t('transport.volume')}</Text>
       <LevelSlider
-        className="flex-1"
+        className='flex-1'
         label={t('transport.masterVolume')}
         value={volumeDraft}
         onChange={next => {

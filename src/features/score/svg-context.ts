@@ -55,7 +55,7 @@ function number(value: number): string {
 
 function matrixValue(matrix: Matrix): string {
   return `matrix(${number(matrix.a)} ${number(matrix.b)} ${number(
-    matrix.c,
+    matrix.c
   )} ${number(matrix.d)} ${number(matrix.e)} ${number(matrix.f)})`;
 }
 
@@ -81,7 +81,7 @@ function pathArc(
   start: number,
   end: number,
   counterclockwise: boolean,
-  current: { x: number; y: number } | null,
+  current: { x: number; y: number } | null
 ): { command: string; point: { x: number; y: number } } {
   const full = Math.PI * 2;
   let sweep = end - start;
@@ -114,18 +114,18 @@ function pathArc(
     };
     return {
       command: `${prefix}A ${number(radius)} ${number(
-        radius,
+        radius
       )} 0 1 ${sweepFlag} ${number(middlePoint.x)} ${number(
-        middlePoint.y,
+        middlePoint.y
       )} A ${number(radius)} ${number(radius)} 0 1 ${sweepFlag} ${number(
-        startPoint.x,
+        startPoint.x
       )} ${number(startPoint.y)}`,
       point: endPoint,
     };
   }
   return {
     command: `${prefix}A ${number(radius)} ${number(
-      radius,
+      radius
     )} 0 ${large} ${sweepFlag} ${number(endPoint.x)} ${number(endPoint.y)}`,
     point: endPoint,
   };
@@ -220,10 +220,10 @@ export class SvgDrawingContext implements DrawingContext2D {
     cp2x: number,
     cp2y: number,
     x: number,
-    y: number,
+    y: number
   ): void {
     this.path += `C ${number(cp1x)} ${number(cp1y)} ${number(cp2x)} ${number(
-      cp2y,
+      cp2y
     )} ${number(x)} ${number(y)} `;
     this.currentPoint = { x, y };
   }
@@ -237,7 +237,7 @@ export class SvgDrawingContext implements DrawingContext2D {
     radius: number,
     start: number,
     end: number,
-    counterclockwise = false,
+    counterclockwise = false
   ): void {
     const result = pathArc(
       x,
@@ -246,14 +246,14 @@ export class SvgDrawingContext implements DrawingContext2D {
       start,
       end,
       counterclockwise,
-      this.currentPoint,
+      this.currentPoint
     );
     this.path += result.command + ' ';
     this.currentPoint = result.point;
   }
   rect(x: number, y: number, width: number, height: number): void {
     this.path += `M ${number(x)} ${number(y)} h ${number(width)} v ${number(
-      height,
+      height
     )} h ${number(-width)} Z `;
     this.currentPoint = { x, y };
   }
@@ -268,10 +268,10 @@ export class SvgDrawingContext implements DrawingContext2D {
       this.element(
         'rect',
         `x="${number(x)}" y="${number(y)}" width="${number(
-          width,
+          width
         )}" height="${number(height)}"`,
-        'fill',
-      ),
+        'fill'
+      )
     );
   }
   clearRect(_x: number, _y: number, _width: number, _height: number): void {
@@ -283,11 +283,11 @@ export class SvgDrawingContext implements DrawingContext2D {
       this.element(
         'text',
         `x="${number(x)}" y="${number(y)}" font-size="${number(
-          size,
+          size
         )}" font-family="${esc(family)}" font-weight="${weight}"`,
         'fill',
-        esc(text),
-      ),
+        esc(text)
+      )
     );
   }
   measureText(text: string): TextMetricsLike {
@@ -310,7 +310,7 @@ export class SvgDrawingContext implements DrawingContext2D {
     c: number,
     d: number,
     e: number,
-    f: number,
+    f: number
   ): void {
     this.current.matrix = { a, b, c, d, e, f };
   }
@@ -323,9 +323,9 @@ export class SvgDrawingContext implements DrawingContext2D {
 
   toSvg(background: string | null = 'white'): string {
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${number(
-      this.canvas.width,
+      this.canvas.width
     )}" height="${number(this.canvas.height)}" viewBox="0 0 ${number(
-      this.canvas.width,
+      this.canvas.width
     )} ${number(this.canvas.height)}">${
       background === null
         ? ''
@@ -354,7 +354,7 @@ export class SvgDrawingContext implements DrawingContext2D {
     tag: string,
     attributes: string,
     kind: 'fill' | 'stroke',
-    content = '',
+    content = ''
   ): string {
     const fill = kind === 'fill' ? esc(this.current.fillStyle) : 'none';
     const stroke = kind === 'stroke' ? esc(this.current.strokeStyle) : 'none';
@@ -363,9 +363,9 @@ export class SvgDrawingContext implements DrawingContext2D {
         ? ` stroke-dasharray="${this.current.lineDash.map(number).join(' ')}"`
         : '';
     const common = `transform="${matrixValue(
-      this.current.matrix,
+      this.current.matrix
     )}" fill="${fill}" stroke="${stroke}" stroke-width="${number(
-      this.current.lineWidth,
+      this.current.lineWidth
     )}" stroke-linecap="${this.current.lineCap}" stroke-linejoin="${
       this.current.lineJoin
     }" opacity="${number(this.current.globalAlpha)}"${dash}`;

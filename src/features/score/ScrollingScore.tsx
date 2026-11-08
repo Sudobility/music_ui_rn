@@ -234,7 +234,7 @@ export function ScrollingScore({
     setContentSize(previous =>
       previous.width === next.width && previous.height === next.height
         ? previous
-        : next,
+        : next
     );
   }, [
     canvas,
@@ -273,7 +273,8 @@ export function ScrollingScore({
         // One decision per burst: a stop homes to 0 and then reports stopped
         // in the same call, and that is not a jump to bar 1.
         defer: work => queueMicrotask(work),
-        onSounding: listener => (getMusicPlayerIfInitialized()?.onSounding(listener) ?? (() => {})),
+        onSounding: listener =>
+          getMusicPlayerIfInitialized()?.onSounding(listener) ?? (() => {}),
         // The lit notes are published as far ahead as this canvas measures
         // drawing them takes — a Skia recording and a React commit here, much
         // longer than a web repaint — so they land with the sound.
@@ -281,7 +282,7 @@ export function ScrollingScore({
           getMusicPlayerIfInitialized()?.setSoundingRenderDelay(seconds),
         now: () => performance.now(),
       }),
-    [canvas],
+    [canvas]
   );
 
   const updateScroll = useCallback(
@@ -292,7 +293,7 @@ export function ScrollingScore({
         scroll.set({ left, top });
       }
     },
-    [canvas, scroll],
+    [canvas, scroll]
   );
 
   /*
@@ -307,7 +308,7 @@ export function ScrollingScore({
   } | null>(
     initialScroll === undefined
       ? null
-      : { vertical: true, horizontal: continuous, target: undefined },
+      : { vertical: true, horizontal: continuous, target: undefined }
   );
   const initialScrollRef = useRef(initialScroll);
 
@@ -332,13 +333,13 @@ export function ScrollingScore({
       if (!target) return;
       const top = Math.min(
         target.top,
-        Math.max(0, contentHeight - sizeRef.current.height),
+        Math.max(0, contentHeight - sizeRef.current.height)
       );
       if (top <= 0) return;
       verticalRef.current?.scrollTo({ y: top, animated: false });
       updateScroll(scroll.get().left, top);
     },
-    [restoreTarget, updateScroll, scroll],
+    [restoreTarget, updateScroll, scroll]
   );
 
   const onContentSizeChangeHorizontal = useCallback(
@@ -350,13 +351,13 @@ export function ScrollingScore({
       if (!target) return;
       const left = Math.min(
         target.left,
-        Math.max(0, contentWidth - sizeRef.current.width),
+        Math.max(0, contentWidth - sizeRef.current.width)
       );
       if (left <= 0) return;
       horizontalRef.current?.scrollTo({ x: left, animated: false });
       updateScroll(left, scroll.get().top);
     },
-    [restoreTarget, updateScroll, scroll],
+    [restoreTarget, updateScroll, scroll]
   );
 
   // Banked on the way out from the latest signal value, including a playback
@@ -365,21 +366,21 @@ export function ScrollingScore({
   onLeaveScrollRef.current = onLeaveScroll;
   useEffect(
     () => () => onLeaveScrollRef.current?.({ ...scroll.get() }),
-    [scroll],
+    [scroll]
   );
 
   const onScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       updateScroll(scroll.get().left, e.nativeEvent.contentOffset.y);
     },
-    [updateScroll, scroll],
+    [updateScroll, scroll]
   );
 
   const onScrollHorizontal = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       updateScroll(e.nativeEvent.contentOffset.x, scroll.get().top);
     },
-    [updateScroll, scroll],
+    [updateScroll, scroll]
   );
 
   /**
@@ -410,7 +411,7 @@ export function ScrollingScore({
           getMusicPositionSource().moveTo(tick);
       }
     },
-    [canvas, scroll, onPress, onLongPress],
+    [canvas, scroll, onPress, onLongPress]
   );
 
   const onTouchStart = useCallback((e: GestureResponderEvent) => {
@@ -446,7 +447,7 @@ export function ScrollingScore({
       */
       pressAt(e, kind === 'longPress');
     },
-    [pressAt, onPress, onLongPress],
+    [pressAt, onPress, onLongPress]
   );
 
   const TouchSurface = Platform.OS === 'windows' ? Pressable : View;
@@ -483,7 +484,7 @@ export function ScrollingScore({
           and across whatever sits below it — the piano keyboard, once that
           started expanded. A view does not clip its children by default here.
         */
-          <View style={styles.pinned} pointerEvents="none">
+          <View style={styles.pinned} pointerEvents='none'>
             <ScoreView picture={picture} height={height} />
             <PlaybackCursor
               cursor={cursor}

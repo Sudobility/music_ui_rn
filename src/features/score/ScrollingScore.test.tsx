@@ -45,7 +45,7 @@ const mockCanvasAnswers: {
 
 jest.mock('./useScoreCanvas', () => {
   const actual = jest.requireActual(
-    './useScoreCanvas',
+    './useScoreCanvas'
   ) as typeof import('./useScoreCanvas');
   const record =
     (method: string) =>
@@ -115,7 +115,7 @@ jest.mock('./PlaybackCursor', () => ({
 
 jest.mock('@sudobility/music_drawing', () => {
   const actual = jest.requireActual(
-    '@sudobility/music_drawing',
+    '@sudobility/music_drawing'
   ) as typeof import('@sudobility/music_drawing');
   // Playback is the shared binding's and has its own tests; here it would
   // reach for a player the test does not have.
@@ -198,11 +198,11 @@ function press(
     from?: { x: number; y: number };
     to?: { x: number; y: number };
     heldMs?: number;
-  } = {},
+  } = {}
 ) {
   const surface = view.UNSAFE_root.findAll(
     (node: { props: Record<string, unknown> }) =>
-      typeof node.props.onTouchEnd === 'function',
+      typeof node.props.onTouchEnd === 'function'
   )[0]!;
   const now = jest.spyOn(Date, 'now').mockReturnValue(1_000);
   fireEvent(surface, 'touchStart', {
@@ -240,7 +240,7 @@ describe('touches', () => {
     mockCanvasAnswers.tick = 512;
     const onPress = jest.fn();
     const view = renderWithApp(
-      <ScrollingScore score={score} onPress={onPress} />,
+      <ScrollingScore score={score} onPress={onPress} />
     );
     press(view);
     expect(onPress).toHaveBeenCalledWith(noteHit, 512);
@@ -254,7 +254,7 @@ describe('touches', () => {
     mockCanvasAnswers.tick = 960;
     const onPress = jest.fn();
     const view = renderWithApp(
-      <ScrollingScore score={score} onPress={onPress} />,
+      <ScrollingScore score={score} onPress={onPress} />
     );
     press(view);
     expect(onPress).toHaveBeenCalledWith(null, 960);
@@ -278,7 +278,7 @@ describe('touches', () => {
       const view = renderWithApp(<ScrollingScore score={score} />);
       const surface = view.UNSAFE_root.findAll(
         (node: { props: Record<string, unknown> }) =>
-          typeof node.props.onPress === 'function',
+          typeof node.props.onPress === 'function'
       )[0]!;
       fireEvent(surface, 'press', {
         nativeEvent: { locationX: 40, locationY: 50 },
@@ -302,7 +302,7 @@ describe('touches', () => {
         score={score}
         onPress={onPress}
         onLongPress={onLongPress}
-      />,
+      />
     );
     press(view, { heldMs: 700 });
     expect(onLongPress).toHaveBeenCalledWith(noteHit);
@@ -325,7 +325,7 @@ describe('touches', () => {
         score={score}
         onPress={onPress}
         onLongPress={onLongPress}
-      />,
+      />
     );
     press(view, { from: { x: 100, y: 300 }, to: { x: 100, y: 120 } });
     press(view, {
@@ -361,7 +361,7 @@ describe('ScrollingScore', () => {
       here is handing it the wrong one.
     */
     const score = clarinetScore();
-    renderWithApp(<ScrollingScore score={score} pitchDisplay="written" />);
+    renderWithApp(<ScrollingScore score={score} pitchDisplay='written' />);
     expect(lastCall('setStoredScore')).toEqual([score, 'written']);
     expect(lastCall('setScore')).toBeUndefined();
   });
@@ -407,7 +407,7 @@ describe('reopening a tab', () => {
   it('opens at the offset the tab was left at, once its content is laid out', () => {
     const score = createEmptyScore({ title: 'Test', measures: 40 });
     const view = renderWithApp(
-      <ScrollingScore score={score} initialScroll={{ left: 0, top: 840 }} />,
+      <ScrollingScore score={score} initialScroll={{ left: 0, top: 840 }} />
     );
     const { scroller, scrollTo } = verticalScroller(view);
     // Before the content has a height, a scroll would clamp to the top.
@@ -428,7 +428,7 @@ describe('reopening a tab', () => {
     mockCanvasAnswers.follow = { left: 0, top: 1320 };
     const score = createEmptyScore({ title: 'Test', measures: 40 });
     const view = renderWithApp(
-      <ScrollingScore score={score} initialScroll={null} />,
+      <ScrollingScore score={score} initialScroll={null} />
     );
     const { scroller, scrollTo } = verticalScroller(view);
     fireEvent(scroller, 'contentSizeChange', 800, 4000);
@@ -450,7 +450,7 @@ describe('reopening a tab', () => {
     const score = createEmptyScore({ title: 'Test', measures: 40 });
     const onLeaveScroll = jest.fn();
     const view = renderWithApp(
-      <ScrollingScore score={score} onLeaveScroll={onLeaveScroll} />,
+      <ScrollingScore score={score} onLeaveScroll={onLeaveScroll} />
     );
     const { scroller } = verticalScroller(view);
     fireEvent.scroll(scroller, {

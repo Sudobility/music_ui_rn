@@ -25,6 +25,6 @@ export function useScoreSelection(document: MusicDocument): ScoreSelection {
   const regenerated = useStore(store, s => s.selectionRegenerated);
   return useMemo(
     () => ({ noteIds, measureIds, regenerated }),
-    [noteIds, measureIds, regenerated],
+    [noteIds, measureIds, regenerated]
   );
 }

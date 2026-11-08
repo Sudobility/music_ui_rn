@@ -15,7 +15,10 @@ import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { createEmptyScore } from '@sudobility/music_types';
 import { createDocumentStore } from '@sudobility/music_lib';
-import { initializeMusicPlayer, getMusicPlayerIfInitialized } from '@sudobility/music_player/core';
+import {
+  initializeMusicPlayer,
+  getMusicPlayerIfInitialized,
+} from '@sudobility/music_player/core';
 import { MockMusicPlayer } from '@sudobility/music_player/mocks';
 import type { MusicDocument } from '../types';
 
@@ -23,7 +26,7 @@ let nextId = 0;
 
 /** A document over an N-bar empty score. */
 export function testDocument(
-  options: { measures?: number; title?: string } = {},
+  options: { measures?: number; title?: string } = {}
 ): MusicDocument {
   const title = options.title ?? 'Test';
   nextId += 1;
@@ -49,7 +52,8 @@ export function renderWithApp(ui: ReactElement) {
     });
     started = true;
   }
-  if (!getMusicPlayerIfInitialized()) initializeMusicPlayer(new MockMusicPlayer());
+  if (!getMusicPlayerIfInitialized())
+    initializeMusicPlayer(new MockMusicPlayer());
 
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 } },

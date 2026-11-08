@@ -35,7 +35,7 @@ function paintTwinkle(theme = LIGHT_RENDER_THEME) {
     new CanvasScoreRenderer(),
     (width, height) => new PictureRecorder(width, height),
     () => ({ width: 600, height: 300 }),
-    picture => pictures.push(picture),
+    picture => pictures.push(picture)
   );
   const options = {
     width: 600,
@@ -63,7 +63,7 @@ describe('Windows layered score rendering', () => {
           ...options,
           viewport: { ...options.viewport, top, bottom: top + 300 },
         },
-        { baseVersion: version },
+        { baseVersion: version }
       );
       expect(result?.drawnMeasureIndices).toBeInstanceOf(Set);
       expect(result?.idToBBox.size).toBeGreaterThan(0);

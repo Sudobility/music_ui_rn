@@ -50,11 +50,11 @@ type Row = readonly [label: string, value: string];
 
 function OriginRows({ rows }: { rows: readonly Row[] }) {
   return (
-    <View className="gap-1">
+    <View className='gap-1'>
       {rows.map(([label, value]) => (
-        <View key={label} className="flex-row items-start gap-2">
-          <Text className="text-muted-foreground text-sm">{`${label}:`}</Text>
-          <Text className="text-foreground flex-1 text-sm">{value}</Text>
+        <View key={label} className='flex-row items-start gap-2'>
+          <Text className='text-muted-foreground text-sm'>{`${label}:`}</Text>
+          <Text className='text-foreground flex-1 text-sm'>{value}</Text>
         </View>
       ))}
     </View>
@@ -63,7 +63,7 @@ function OriginRows({ rows }: { rows: readonly Row[] }) {
 
 /** Whether a job's stored request is a whole-score brief rather than a region's. */
 function isScoreRequest(
-  request: GenerationJobDetail['request'],
+  request: GenerationJobDetail['request']
 ): request is GenerateScoreRequest {
   return 'durationMeasures' in request;
 }
@@ -113,7 +113,7 @@ export function GeneratedOriginDetails({ job }: { job: GenerationJobDetail }) {
           .map(track =>
             track.instrumentName && track.instrumentName !== track.name
               ? `${track.name} — ${track.instrumentName}`
-              : track.name,
+              : track.name
           )
           .join('\n'),
       ]);
@@ -170,7 +170,7 @@ function GeneratedOrigin({
   const job = jobs.data?.find(candidate => candidate.id === jobId);
   if (job) return <GeneratedOriginDetails job={job} />;
   return (
-    <Text className="text-muted-foreground text-sm">
+    <Text className='text-muted-foreground text-sm'>
       {jobs.isSuccess
         ? t('projectOrigin.jobMissing')
         : t('projectOrigin.jobLoading')}
@@ -205,11 +205,11 @@ export function ProjectOriginPanel({
 }: ProjectOriginProps) {
   const { t } = useTranslation();
   return (
-    <View className="gap-2" accessibilityLabel={t('projectOrigin.heading')}>
-      <Text className="text-foreground text-sm font-semibold">
+    <View className='gap-2' accessibilityLabel={t('projectOrigin.heading')}>
+      <Text className='text-foreground text-sm font-semibold'>
         {t('projectOrigin.heading')}
       </Text>
-      <Text className="text-foreground text-sm">
+      <Text className='text-foreground text-sm'>
         {t(`projectOrigin.kind.${origin?.kind ?? 'unknown'}`)}
       </Text>
       {origin?.kind === 'imported' ? (

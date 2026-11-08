@@ -34,7 +34,7 @@ const INSTRUMENT_OPTIONS: readonly { value: string; label: string }[] = [
     group.instruments.map(instrument => ({
       value: String(instrument.program),
       label: `${group.label} · ${instrument.name}`,
-    })),
+    }))
   ),
 ];
 
@@ -93,19 +93,19 @@ export function GenerateTrackSheet({
               buildGenerateTrackRequest(
                 score,
                 trimmed,
-                instrumentChoiceFor(value),
-              ),
+                instrumentChoiceFor(value)
+              )
             ),
         },
       ]}
     >
       <>
-        <Text className="text-muted-foreground pb-3 text-base">
+        <Text className='text-muted-foreground pb-3 text-base'>
           {t('generateTrack.intro')}
         </Text>
 
-        <View className="gap-1 pb-3">
-          <Text className="text-muted-foreground text-sm">
+        <View className='gap-1 pb-3'>
+          <Text className='text-muted-foreground text-sm'>
             {t('generateTrack.promptLabel')}
           </Text>
           <Input
@@ -118,8 +118,8 @@ export function GenerateTrackSheet({
           />
         </View>
 
-        <View className="gap-1 pb-3">
-          <Text className="text-muted-foreground text-sm">
+        <View className='gap-1 pb-3'>
+          <Text className='text-muted-foreground text-sm'>
             {t('generate.instrument')}
           </Text>
           <Select
@@ -131,7 +131,7 @@ export function GenerateTrackSheet({
         </View>
 
         {/* Every bar of the score, once: what the server bills for a new part. */}
-        <Text className="text-muted-foreground text-sm">
+        <Text className='text-muted-foreground text-sm'>
           {t('generate.estimate', {
             count: estimateGenerateTrackCredits(score),
           })}

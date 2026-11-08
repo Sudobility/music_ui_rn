@@ -56,7 +56,7 @@ export function PlaybackCursor({ cursor, scroll, color }: PlaybackCursorProps) {
   return (
     <View
       ref={line}
-      pointerEvents="none"
+      pointerEvents='none'
       style={[styles.line, { backgroundColor: color }]}
     />
   );

@@ -52,16 +52,16 @@ export function GenerationOverlay({
   const transcribing = status === 'transcribing';
   return (
     <View
-      testID="generation-status-strip"
-      accessibilityRole="summary"
-      className="border-border bg-background flex-row flex-wrap items-center gap-x-3 gap-y-1 border-t px-4 py-2"
+      testID='generation-status-strip'
+      accessibilityRole='summary'
+      className='border-border bg-background flex-row flex-wrap items-center gap-x-3 gap-y-1 border-t px-4 py-2'
     >
       <Spinner />
-      <Text className="text-foreground text-base">
+      <Text className='text-foreground text-base'>
         {t(transcribing ? 'overlay.transcribingNotes' : 'generate.working')}
       </Text>
       {progress ? (
-        <Text className="text-muted-foreground text-sm">
+        <Text className='text-muted-foreground text-sm'>
           {t('overlay.progress', {
             // A transcription's first stage splits the recording into
             // parts; "Planning" is what a generation does before it writes.
@@ -76,20 +76,20 @@ export function GenerationOverlay({
         </Text>
       ) : null}
       {live === 'reconnecting' ? (
-        <Text className="text-muted-foreground text-sm">
+        <Text className='text-muted-foreground text-sm'>
           {t('overlay.reconnecting')}
         </Text>
       ) : live === 'fallback' ? (
-        <Text className="text-muted-foreground text-sm">
+        <Text className='text-muted-foreground text-sm'>
           {t('overlay.polling')}
         </Text>
       ) : null}
-      <Text className="text-muted-foreground text-sm">
+      <Text className='text-muted-foreground text-sm'>
         {t('overlay.lockedWhileGenerating')}
       </Text>
-      {error ? <Text className="text-destructive text-sm">{error}</Text> : null}
-      <View className="flex-1" />
-      <Button variant="secondary" onPress={onCancel}>
+      {error ? <Text className='text-destructive text-sm'>{error}</Text> : null}
+      <View className='flex-1' />
+      <Button variant='secondary' onPress={onCancel}>
         {t('common.cancel')}
       </Button>
     </View>

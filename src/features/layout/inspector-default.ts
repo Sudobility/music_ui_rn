@@ -44,7 +44,7 @@ export const MIN_SCORE_WIDTH = 480;
  */
 export function inspectorOpensByDefault(
   width: number,
-  insets: { left: number; right: number },
+  insets: { left: number; right: number }
 ): boolean {
   const content = width - insets.left - insets.right;
   return content - INSPECTOR_COLUMN_WIDTH >= MIN_SCORE_WIDTH;

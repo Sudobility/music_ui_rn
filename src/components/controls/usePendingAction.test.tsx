@@ -99,9 +99,9 @@ describe('IconButton while loading', () => {
   it('spins, says it is busy, and answers neither a press nor an assistive tap', () => {
     const onPress = jest.fn();
     const view = render(
-      <IconButton label="Save" onPress={onPress} loading>
+      <IconButton label='Save' onPress={onPress} loading>
         <Text>glyph</Text>
-      </IconButton>,
+      </IconButton>
     );
     const button = view.getByLabelText('Save');
     expect(view.queryByText('glyph')).toBeNull();
@@ -117,9 +117,9 @@ describe('IconButton while loading', () => {
   it('draws its glyph and answers both routes when not', () => {
     const onPress = jest.fn();
     const view = render(
-      <IconButton label="Save" onPress={onPress}>
+      <IconButton label='Save' onPress={onPress}>
         <Text>glyph</Text>
-      </IconButton>,
+      </IconButton>
     );
     expect(view.getByText('glyph')).toBeTruthy();
     expect(view.getByLabelText('Save').props.onAccessibilityTap).toBe(onPress);

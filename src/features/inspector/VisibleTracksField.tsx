@@ -44,13 +44,13 @@ export function VisibleTracksField({ document }: { document: MusicDocument }) {
   };
 
   return (
-    <View className="gap-2" accessibilityLabel={t('inspector.visibleTracks')}>
-      <Text className="text-muted-foreground text-sm">
+    <View className='gap-2' accessibilityLabel={t('inspector.visibleTracks')}>
+      <Text className='text-muted-foreground text-sm'>
         {t('inspector.visibleTracks')}
       </Text>
       {tracks.map(track => (
-        <View key={track.id} className="flex-row items-center justify-between">
-          <Text className="text-foreground flex-1 text-base" numberOfLines={1}>
+        <View key={track.id} className='flex-row items-center justify-between'>
+          <Text className='text-foreground flex-1 text-base' numberOfLines={1}>
             {track.name}
           </Text>
           <Switch

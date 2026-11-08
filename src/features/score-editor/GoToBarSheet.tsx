@@ -68,8 +68,8 @@ export function GoToBarSheet({
       saveLabel={t('editor.go')}
       closeAriaLabel={t('common.closeDialog')}
     >
-      <View className="gap-1">
-        <Text className="text-muted-foreground text-sm">
+      <View className='gap-1'>
+        <Text className='text-muted-foreground text-sm'>
           {t('editor.barNumberOf', { count: barCount })}
         </Text>
         <Input
@@ -80,8 +80,8 @@ export function GoToBarSheet({
             digits to type here, and on a phone the wrong keyboard is the
             difference between one tap and three.
           */
-          keyboardType="number-pad"
-          returnKeyType="go"
+          keyboardType='number-pad'
+          returnKeyType='go'
           accessibilityLabel={t('editor.barNumber')}
           onChangeText={next => {
             setValue(next);
@@ -91,7 +91,7 @@ export function GoToBarSheet({
         />
         {/* Says what is wrong and what would be right, rather than just refusing. */}
         {error ? (
-          <Text className="text-destructive text-sm">
+          <Text className='text-destructive text-sm'>
             {t('editor.noSuchBar', { count: barCount })}
           </Text>
         ) : null}

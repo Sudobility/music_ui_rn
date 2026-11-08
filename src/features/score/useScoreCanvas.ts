@@ -136,7 +136,7 @@ export function useScoreCanvas({
       cursor: createSignal<CursorState>(HELD),
       scroll: createSignal<ScrollOffset>({ left: 0, top: 0 }),
     }),
-    [],
+    []
   );
 
   const canvas = useMemo(() => {
@@ -148,8 +148,7 @@ export function useScoreCanvas({
       size: () => size.current,
       show: picture => signals.picture.set(picture as SkPicture),
     });
-    let canvas: ScoreCanvas;
-    canvas = new ScoreCanvas({
+    const canvas: ScoreCanvas = new ScoreCanvas({
       scheduler: SCHEDULER,
       surface: {
         paint,

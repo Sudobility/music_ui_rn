@@ -68,7 +68,7 @@ export function ScoreActionsSheet({
       actions={[]}
       closeAriaLabel={t('common.closeDialog')}
     >
-      <View className="gap-2 p-1">
+      <View className='gap-2 p-1'>
         {/*
           The subject, before the verbs — it says what the list is about, which
           is exactly what "Delete" cannot say on its own when it means three
@@ -77,14 +77,14 @@ export function ScoreActionsSheet({
           removes it and everything behind moves up.
         */}
         {subject === null ? null : (
-          <Text className="text-muted-foreground text-sm font-medium">
+          <Text className='text-muted-foreground text-sm font-medium'>
             {t(subject.key, { count: subject.count })}
           </Text>
         )}
         {entries.map(entry => (
           <Button
             key={entry.action}
-            variant="secondary"
+            variant='secondary'
             disabled={!entry.enabled}
             onPress={() => {
               onClose();
@@ -95,7 +95,7 @@ export function ScoreActionsSheet({
             {t(entry.labelKey)}
           </Button>
         ))}
-        <Text className="text-muted-foreground text-sm">
+        <Text className='text-muted-foreground text-sm'>
           {t('editor.scoreActionsHint')}
         </Text>
       </View>

@@ -27,10 +27,7 @@ import { WHOLE_SCORE } from '@sudobility/music_drawing';
 import type { PrintPlanOptions } from '@sudobility/music_drawing';
 import type { Score } from '@sudobility/music_types';
 import { Field } from '../inspector';
-import {
-  ORIENTATION_OPTIONS,
-  PAPER_OPTIONS,
-} from '@sudobility/music_types';
+import { ORIENTATION_OPTIONS, PAPER_OPTIONS } from '@sudobility/music_types';
 import type { PaperOrientation, PaperSize } from '@sudobility/music_types';
 
 export type PrintSheetProps = {
@@ -112,7 +109,7 @@ export function PrintSheet({
         },
       ]}
     >
-      <View className="gap-3">
+      <View className='gap-3'>
         <Field label={t('print.whatToPrint')}>
           <Select
             value={effectiveScope}

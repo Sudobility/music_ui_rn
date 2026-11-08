@@ -55,30 +55,30 @@ export function InsertBarsSheet({
       saveLabel={t('editor.insertBars')}
       closeAriaLabel={t('common.closeDialog')}
     >
-      <View className="gap-4">
-        <View className="gap-1">
-          <Text className="text-muted-foreground text-sm">
+      <View className='gap-4'>
+        <View className='gap-1'>
+          <Text className='text-muted-foreground text-sm'>
             {t('editor.barCount')}
           </Text>
           <Input
             value={count}
             autoFocus
-            keyboardType="number-pad"
+            keyboardType='number-pad'
             accessibilityLabel={t('editor.barCount')}
             onChangeText={setCount}
           />
         </View>
 
-        <View className="gap-2">
-          <Text className="text-muted-foreground text-sm">
+        <View className='gap-2'>
+          <Text className='text-muted-foreground text-sm'>
             {t('editor.insertBarsPosition')}
           </Text>
           {(['before', 'after'] as const).map(option => (
             <Pressable
               key={option}
-              className="flex-row items-center gap-2"
+              className='flex-row items-center gap-2'
               hitSlop={10}
-              accessibilityRole="radio"
+              accessibilityRole='radio'
               accessibilityState={{ selected: position === option }}
               onPress={() => setPosition(option)}
               // macOS has no synthesized-touch fallback for an assistive
@@ -92,28 +92,28 @@ export function InsertBarsSheet({
                     : 'border-muted-foreground h-4 w-4 rounded-full border'
                 }
               />
-              <Text className="text-foreground">
+              <Text className='text-foreground'>
                 {t(
                   option === 'before'
                     ? 'editor.insertBarsBefore'
-                    : 'editor.insertBarsAfter',
+                    : 'editor.insertBarsAfter'
                 )}
               </Text>
             </Pressable>
           ))}
         </View>
 
-        <View className="flex-row items-center gap-3">
+        <View className='flex-row items-center gap-3'>
           <Switch
             checked={generate}
             onCheckedChange={setGenerate}
             accessibilityLabel={t('editor.generateInsertedBars')}
           />
-          <View className="flex-1">
-            <Text className="text-foreground text-base">
+          <View className='flex-1'>
+            <Text className='text-foreground text-base'>
               {t('editor.generateInsertedBars')}
             </Text>
-            <Text className="text-muted-foreground text-sm">
+            <Text className='text-muted-foreground text-sm'>
               {t('editor.generateInsertedBarsHint')}
             </Text>
           </View>

@@ -54,7 +54,7 @@ export function IssuesSheet({
           label: t('editor.fixIssues'),
           onPress: () => {
             const outcome = repairIssuesOutcome(
-              repairAllIssues(document.store, t('editor.fixIssues')),
+              repairAllIssues(document.store, t('editor.fixIssues'))
             );
             document.store.getState().pushToast({
               message: t(outcome.messageKey, outcome.params),
@@ -69,9 +69,9 @@ export function IssuesSheet({
         },
       ]}
     >
-      <View className="gap-2">
+      <View className='gap-2'>
         {issues.length === 0 ? (
-          <Text className="text-muted-foreground text-base">
+          <Text className='text-muted-foreground text-base'>
             {t('editor.noIssues')}
           </Text>
         ) : (

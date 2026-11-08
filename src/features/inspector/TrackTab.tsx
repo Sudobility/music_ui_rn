@@ -81,7 +81,7 @@ export function TrackTab({
       controlLocked(s, 'trackVolume') ||
       controlLocked(s, 'trackPan') ||
       controlLocked(s, 'trackMute') ||
-      controlLocked(s, 'trackSolo'),
+      controlLocked(s, 'trackSolo')
   );
   /*
     Subscribed, not read once with `getState()`: a read during render goes
@@ -108,7 +108,7 @@ export function TrackTab({
   const [panDraft, setPanDraft] = useState(track?.pan ?? 0);
   useEffect(
     () => setVolumeDraft(track?.volume ?? 1),
-    [track?.id, track?.volume],
+    [track?.id, track?.volume]
   );
   useEffect(() => setPanDraft(track?.pan ?? 0), [track?.id, track?.pan]);
 
@@ -120,7 +120,7 @@ export function TrackTab({
       // business rule rather than reimplementing it in their controls.
       store.getState().setTrackMix(track.id, patch);
     },
-    [store, track],
+    [store, track]
   );
 
   /**
@@ -147,7 +147,7 @@ export function TrackTab({
           severity: 'error',
         });
     },
-    [store, track, t],
+    [store, track, t]
   );
 
   /**
@@ -160,9 +160,9 @@ export function TrackTab({
   const outOfRange = useMemo(
     () =>
       outOfRangeNoteIds(score).byTrack.find(
-        entry => entry.trackId === trackId,
+        entry => entry.trackId === trackId
       ) ?? null,
-    [score, trackId],
+    [score, trackId]
   );
 
   const commitName = useCallback(() => {
@@ -184,7 +184,7 @@ export function TrackTab({
   const percussion = isPercussionTrack(track);
 
   return (
-    <View className="gap-3">
+    <View className='gap-3'>
       <Field label={t('inspector.name')}>
         <Input
           value={draftName}
@@ -202,9 +202,9 @@ export function TrackTab({
           by. The art is music_types', the same drawing the canvas gutter
           strokes into the score.
         */}
-        <View className="flex-row items-center gap-2">
+        <View className='flex-row items-center gap-2'>
           <InstrumentIcon track={track} color={ink.foreground} />
-          <View className="flex-1">
+          <View className='flex-1'>
             <SheetSelector
               title={t(picker.titleKey)}
               value={picker.value}
@@ -229,7 +229,7 @@ export function TrackTab({
         moving the notes.
       */}
       {outOfRange ? (
-        <Text className="text-muted-foreground text-sm">
+        <Text className='text-muted-foreground text-sm'>
           {t('inspector.outOfRange', {
             count: outOfRange.count,
             low: pitchToString(midiToPitch(outOfRange.compass.min)),
@@ -296,8 +296,8 @@ export function TrackTab({
         do not. Muting a part while listening is how an arrangement gets
         listened to.
       */}
-      <View className="flex-row items-center justify-between">
-        <Text className="text-foreground text-base">{t('inspector.mute')}</Text>
+      <View className='flex-row items-center justify-between'>
+        <Text className='text-foreground text-base'>{t('inspector.mute')}</Text>
         <Switch
           checked={track.muted === true}
           disabled={mixLocked}
@@ -305,8 +305,8 @@ export function TrackTab({
           accessibilityLabel={t('inspector.mute')}
         />
       </View>
-      <View className="flex-row items-center justify-between">
-        <Text className="text-foreground text-base">{t('inspector.solo')}</Text>
+      <View className='flex-row items-center justify-between'>
+        <Text className='text-foreground text-base'>{t('inspector.solo')}</Text>
         <Switch
           checked={track.solo === true}
           disabled={mixLocked}
@@ -323,7 +323,7 @@ export function TrackTab({
         the panel should not be the second place that knows it.
       */}
       <Button
-        variant="destructive"
+        variant='destructive'
         disabled={!canDelete || locked}
         onPress={() => setConfirmDelete(true)}
         accessibilityLabel={t('inspector.deleteTrack')}
@@ -346,7 +346,7 @@ export function TrackTab({
       {onReplace ? (
         <ReplaceButton
           document={document}
-          scope="track"
+          scope='track'
           label={t('inspector.replaceTrack')}
           onReplace={onReplace}
         />

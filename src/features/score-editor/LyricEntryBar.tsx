@@ -94,7 +94,7 @@ export function LyricEntryBar({
     const { leftover } = distributeLyrics(
       store,
       trackId,
-      syllabifyText(line, language),
+      syllabifyText(line, language)
     );
     if (leftover.length > 0) {
       store.getState().pushToast({
@@ -141,6 +141,9 @@ export function LyricEntryBar({
     // `setSelection` is a native `TextInput` method some platforms (and a test
     // renderer) do not expose; selecting the word is a nicety, not a necessity.
     inputRef.current?.setSelection?.(0, existing.length);
+    // Runs on a move (index) or an edit (draft) only; `notes`/`store` are read
+    // for the current word but must not re-focus the field as they change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draft, index]);
 
   if (!note) return null;
@@ -176,11 +179,11 @@ export function LyricEntryBar({
   return (
     <>
       <View
-        className="border-border flex-row items-center gap-2 border-t px-2 py-1.5"
-        accessibilityRole="toolbar"
+        className='border-border flex-row items-center gap-2 border-t px-2 py-1.5'
+        accessibilityRole='toolbar'
         accessibilityLabel={t('editor.lyricEntry')}
       >
-        <Text className="text-muted-foreground shrink-0 text-sm">
+        <Text className='text-muted-foreground shrink-0 text-sm'>
           {t('editor.lyricNoteOf', {
             current: index + 1,
             total: notes.length,
@@ -196,16 +199,16 @@ export function LyricEntryBar({
             // A lyric is prose, so the keyboard should behave like prose — except
             // for autocorrect, which rewrites the syllables of a hyphenated word.
             autoCorrect={false}
-            autoCapitalize="none"
-            returnKeyType="done"
+            autoCapitalize='none'
+            returnKeyType='done'
             accessibilityLabel={t('editor.syllable')}
             onChangeText={handleChange}
             onSubmitEditing={() => perform('enter', draft)}
-            className="h-full px-2 py-0 text-base"
+            className='h-full px-2 py-0 text-base'
           />
         </FieldSlot>
         <Button
-          variant="ghost"
+          variant='ghost'
           onPress={() => perform('back', draft)}
           disabled={index === 0}
           accessibilityLabel={t('editor.previousSyllable')}
@@ -213,17 +216,17 @@ export function LyricEntryBar({
           {'‹'}
         </Button>
         <Button
-          variant="ghost"
+          variant='ghost'
           onPress={() => perform('hyphen', draft)}
           accessibilityLabel={t('editor.hyphenate')}
         >
           {'-'}
         </Button>
-        <Button variant="ghost" onPress={() => perform('space', draft)}>
+        <Button variant='ghost' onPress={() => perform('space', draft)}>
           {'␣'}
         </Button>
         <Button
-          variant="ghost"
+          variant='ghost'
           onPress={() => {
             setLine('');
             setLineOpen(true);
@@ -232,7 +235,7 @@ export function LyricEntryBar({
         >
           {'¶'}
         </Button>
-        <Button variant="ghost" onPress={onClose}>
+        <Button variant='ghost' onPress={onClose}>
           {t('editor.done')}
         </Button>
       </View>
@@ -264,7 +267,7 @@ export function LyricEntryBar({
             multiline
             autoFocus
             autoCorrect={false}
-            autoCapitalize="none"
+            autoCapitalize='none'
             accessibilityLabel={t('editor.distributeTitle')}
           />
         </Field>

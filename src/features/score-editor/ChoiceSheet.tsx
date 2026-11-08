@@ -73,18 +73,18 @@ export function ChoiceSheet<T extends string>({
       // with one accessible name are ambiguous read aloud.
       closeAriaLabel={t('common.closeDialog')}
     >
-      <View className="gap-3 p-1">
-        <Text className="text-foreground text-base">{message}</Text>
+      <View className='gap-3 p-1'>
+        <Text className='text-foreground text-base'>{message}</Text>
         {choices.map(c => (
           <View
             key={c.value}
-            className="gap-0.5"
+            className='gap-0.5'
             style={c.disabled ? { opacity: 0.5 } : undefined}
           >
-            <Text className="text-foreground text-base font-medium">
+            <Text className='text-foreground text-base font-medium'>
               {c.label}
             </Text>
-            <Text className="text-muted-foreground text-sm">{c.detail}</Text>
+            <Text className='text-muted-foreground text-sm'>{c.detail}</Text>
           </View>
         ))}
       </View>

@@ -25,7 +25,7 @@ type PopupMenu = {
   show(
     items: Array<{ key: string; label: string; selected: boolean }>,
     x: number,
-    y: number,
+    y: number
   ): Promise<string | null>;
 };
 
@@ -61,7 +61,7 @@ export function AudioOutputSelect() {
       const available = (await outputDevices()).map(device =>
         device.id === 'default'
           ? { ...device, name: t('transport.systemDefault') }
-          : device,
+          : device
       );
       setDevices(available);
       const current = selectedOutputDevice();
@@ -77,7 +77,7 @@ export function AudioOutputSelect() {
                 selected: device.id === current,
               })),
               x,
-              y + 30,
+              y + 30
             )
             .then(id => {
               if (id !== null) void choose(id);
@@ -85,8 +85,8 @@ export function AudioOutputSelect() {
             .catch(() =>
               Alert.alert(
                 t('transport.audioOutput'),
-                t('transport.outputUnavailable'),
-              ),
+                t('transport.outputUnavailable')
+              )
             );
         } else {
           const menuWidth = Math.min(300, width - 16);
@@ -94,11 +94,11 @@ export function AudioOutputSelect() {
           setPosition({
             x: Math.max(
               8,
-              Math.min(x + anchorWidth - menuWidth, width - menuWidth - 8),
+              Math.min(x + anchorWidth - menuWidth, width - menuWidth - 8)
             ),
             y: Math.max(
               8,
-              Math.min(y - menuHeight - 4, height - menuHeight - 8),
+              Math.min(y - menuHeight - 4, height - menuHeight - 8)
             ),
           });
           setOpen(true);
@@ -125,12 +125,12 @@ export function AudioOutputSelect() {
       <Modal
         visible={open}
         transparent
-        animationType="none"
+        animationType='none'
         onRequestClose={() => setOpen(false)}
       >
-        <Pressable className="flex-1" onPress={() => setOpen(false)}>
+        <Pressable className='flex-1' onPress={() => setOpen(false)}>
           <View
-            className="bg-card border-border rounded-md border shadow-lg"
+            className='bg-card border-border rounded-md border shadow-lg'
             style={{
               position: 'absolute',
               left: position.x,
@@ -143,18 +143,18 @@ export function AudioOutputSelect() {
               {devices.map(device => (
                 <Pressable
                   key={device.id}
-                  accessibilityRole="menuitem"
+                  accessibilityRole='menuitem'
                   accessibilityLabel={device.name}
                   accessibilityState={{ selected: device.id === selected }}
                   onPress={() => void choose(device.id)}
-                  className="border-border flex-row items-center border-b px-3 py-2"
+                  className='border-border flex-row items-center border-b px-3 py-2'
                   style={{ minHeight: MIN_TOUCH_TARGET }}
                 >
-                  <Text className="text-foreground flex-1" numberOfLines={1}>
+                  <Text className='text-foreground flex-1' numberOfLines={1}>
                     {device.name}
                   </Text>
                   {device.id === selected ? (
-                    <Text className="text-primary">✓</Text>
+                    <Text className='text-primary'>✓</Text>
                   ) : null}
                 </Pressable>
               ))}

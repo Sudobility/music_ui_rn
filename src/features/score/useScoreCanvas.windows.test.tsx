@@ -16,7 +16,7 @@ function setup() {
   const horizontal = createRef<ScrollView | null>();
   const size = { current: { width: 600, height: 200 } };
   const { result, unmount } = renderHook(() =>
-    useScoreCanvas({ vertical, horizontal, size }),
+    useScoreCanvas({ vertical, horizontal, size })
   );
   const { canvas } = result.current;
   canvas.setStoredScore(twinkleScore());

@@ -52,7 +52,7 @@ beforeEach(() => {
   drawn.length = 0;
   frames = [];
   jest.spyOn(globalThis, 'requestAnimationFrame').mockImplementation(((
-    callback: () => void,
+    callback: () => void
   ) => {
     frames.push(callback);
     return frames.length;

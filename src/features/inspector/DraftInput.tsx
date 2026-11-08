@@ -122,7 +122,7 @@ export function NumberDraftInput({
       onChangeText={setDraft}
       onBlur={commit}
       onSubmitEditing={commit}
-      keyboardType="numeric"
+      keyboardType='numeric'
       editable={editable}
       {...(value === null && mixedPlaceholder
         ? { placeholder: mixedPlaceholder }

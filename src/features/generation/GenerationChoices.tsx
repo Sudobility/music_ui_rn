@@ -67,34 +67,34 @@ export function GenerationChoices({
     });
 
   return (
-    <View className="gap-2">
-      <Text className="text-foreground text-sm font-semibold">
+    <View className='gap-2'>
+      <Text className='text-foreground text-sm font-semibold'>
         {t('generationChoices.heading')}
       </Text>
-      <Text className="text-muted-foreground text-sm">
+      <Text className='text-muted-foreground text-sm'>
         {t('generationChoices.hint')}
       </Text>
       {rows.map(key => {
         const name = t(generationChoiceLabelKey(key));
         return (
-          <View key={key} className="flex-row items-center gap-2">
+          <View key={key} className='flex-row items-center gap-2'>
             <Switch
               checked={locked.has(key)}
               disabled={generating}
               onCheckedChange={() => toggle(key)}
               accessibilityLabel={t('generationChoices.lock', { name })}
             />
-            <Text className="text-muted-foreground text-sm">{`${name}:`}</Text>
-            <Text className="text-foreground flex-1 text-sm" numberOfLines={2}>
+            <Text className='text-muted-foreground text-sm'>{`${name}:`}</Text>
+            <Text className='text-foreground flex-1 text-sm' numberOfLines={2}>
               {lockableChoiceValue(record.choices, key)}
             </Text>
           </View>
         );
       })}
-      <View className="flex-row">
+      <View className='flex-row'>
         <Button
-          variant="secondary"
-          size="sm"
+          variant='secondary'
+          size='sm'
           disabled={generating}
           loading={starting.pending}
           onPress={() => setConfirming(true)}
@@ -105,7 +105,7 @@ export function GenerationChoices({
         </Button>
       </View>
       {estimatedCredits > 0 ? (
-        <Text className="text-muted-foreground text-sm">
+        <Text className='text-muted-foreground text-sm'>
           {t('generate.estimate', { count: estimatedCredits })}
         </Text>
       ) : null}

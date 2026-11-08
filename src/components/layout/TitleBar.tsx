@@ -72,7 +72,7 @@ export function TitleBar({
   printing = false,
 }: TitleBarProps) {
   return (
-    <View className="bg-primary flex-row items-center gap-1 px-2 py-1.5">
+    <View className='bg-primary flex-row items-center gap-1 px-2 py-1.5'>
       <TitleBarTitle document={document} />
       <TitleBarDocumentActions
         document={document}
@@ -85,11 +85,9 @@ export function TitleBar({
       />
 
       {/* Pushes what follows to the right, exactly as the web's `flex-1` div does. */}
-      <View className="flex-1" />
+      <View className='flex-1' />
 
-      <TitleBarAppActions
-        {...(onShortcuts ? { onShortcuts } : {})}
-      />
+      <TitleBarAppActions {...(onShortcuts ? { onShortcuts } : {})} />
     </View>
   );
 }
@@ -127,7 +125,7 @@ export function TitleBarTitle({
   const ink = useNotationInk();
   const color = tint ?? ink.onPrimary;
   return (
-    <View className="shrink flex-row items-center gap-1">
+    <View className='shrink flex-row items-center gap-1'>
       <MusicalNoteIcon size={ICON_SIZE} color={color} />
       <Text
         className={
@@ -178,7 +176,7 @@ export function TitleBarDocumentActions({
   const redo = useCallback(() => document.store.getState().redo(), [document]);
 
   return (
-    <View className="flex-row items-center gap-1">
+    <View className='flex-row items-center gap-1'>
       {/* Any write in flight — this button's or the autosave's — is the wait
           this button would start, so it spins for both. */}
       <IconButton
@@ -262,7 +260,7 @@ export function TitleBarAppActions({
   const nav = useNavigator();
   const color = tint ?? ink.onPrimary;
   return (
-    <View className="flex-row items-center gap-1">
+    <View className='flex-row items-center gap-1'>
       {/* First, as on the web: help with this screen, before the ways out
           of it. */}
       {onShortcuts ? (
@@ -316,7 +314,7 @@ export function TitleBarActions({
 
   if (!phone) {
     return (
-      <View className="flex-row items-center gap-1">
+      <View className='flex-row items-center gap-1'>
         <TitleBarDocumentActions
           document={document}
           onSave={onSave}
@@ -365,12 +363,20 @@ export function TitleBarActions({
           },
         ]
       : []),
-    { key: 'projects', label: t('nav.projects'), onPress: () => nav.go('projects') },
-    { key: 'settings', label: t('nav.settings'), onPress: () => nav.go('settings') },
+    {
+      key: 'projects',
+      label: t('nav.projects'),
+      onPress: () => nav.go('projects'),
+    },
+    {
+      key: 'settings',
+      label: t('nav.settings'),
+      onPress: () => nav.go('settings'),
+    },
   ];
 
   return (
-    <View className="flex-row items-center gap-1">
+    <View className='flex-row items-center gap-1'>
       <IconButton
         label={t('editor.saveNow')}
         onPress={onSave}

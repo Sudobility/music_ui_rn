@@ -106,7 +106,7 @@ export function NoteTab({
   const shown = useCallback(
     (note: NoteEvent): Pitch =>
       score ? displayedPitchForNote(score, note, pitchDisplay) : note.pitch,
-    [score, pitchDisplay],
+    [score, pitchDisplay]
   );
 
   /**
@@ -126,14 +126,14 @@ export function NoteTab({
             store,
             note.id,
             { ...shown(note), ...patch },
-            pitchDisplay,
+            pitchDisplay
           )
         )
           changed = true;
       }
       return changed;
     },
-    [store, score, notes, shown, pitchDisplay],
+    [store, score, notes, shown, pitchDisplay]
   );
 
   if (!score) return <EmptyTab message={t('inspector.noScore')} />;
@@ -164,8 +164,8 @@ export function NoteTab({
   } = noteInspectorModel(notes, score, pitchDisplay);
 
   return (
-    <View className="gap-3">
-      <Text className="text-foreground text-base font-semibold">
+    <View className='gap-3'>
+      <Text className='text-foreground text-base font-semibold'>
         {notes.length > 1
           ? t('inspector.notesSelected', { count: notes.length })
           : t('inspector.note')}
@@ -173,8 +173,8 @@ export function NoteTab({
 
       {/* Step, accidental and octave on one row, as the web lays them out —
           they are three halves of one answer to "which note is this". */}
-      <View className="flex-row gap-2">
-        <View className="flex-1">
+      <View className='flex-row gap-2'>
+        <View className='flex-1'>
           <Field label={t('inspector.pitch')}>
             <Select
               value={step ?? ''}
@@ -191,7 +191,7 @@ export function NoteTab({
             />
           </Field>
         </View>
-        <View className="flex-1">
+        <View className='flex-1'>
           <Field label={t('editor.accidental')}>
             <Select
               value={accidental ?? ''}
@@ -213,7 +213,7 @@ export function NoteTab({
             />
           </Field>
         </View>
-        <View className="flex-1">
+        <View className='flex-1'>
           <Field label={t('inspector.octave')}>
             <NumberDraftInput
               value={octave}
@@ -284,7 +284,7 @@ export function NoteTab({
           onValueChange={(value: string) =>
             changeArticulation(
               store,
-              value === NO_MARK ? undefined : (value as Articulation),
+              value === NO_MARK ? undefined : (value as Articulation)
             )
           }
         />
@@ -309,7 +309,7 @@ export function NoteTab({
             setDynamic(
               store,
               notes.map(n => n.id),
-              value === NO_MARK ? undefined : (value as Dynamic),
+              value === NO_MARK ? undefined : (value as Dynamic)
             )
           }
         />
@@ -371,17 +371,17 @@ export function NoteTab({
         />
       ) : null}
 
-      <View className="flex-row gap-2">
+      <View className='flex-row gap-2'>
         {/* Which part this note is in. Read-only: a note is moved between
             tracks by dragging it, not by retyping the track's name here. */}
-        <View className="flex-1">
+        <View className='flex-1'>
           <Field label={t('inspector.track')}>
-            <Text className="text-foreground text-base">
+            <Text className='text-foreground text-base'>
               {trackName ?? mixed}
             </Text>
           </Field>
         </View>
-        <View className="flex-1">
+        <View className='flex-1'>
           <Field label={t('inspector.voice')}>
             {/*
               Counted from 1, to match the toolbar's Voice 1 / Voice 2. The
@@ -402,7 +402,7 @@ export function NoteTab({
                 setVoice(
                   store,
                   notes.map(n => n.id),
-                  value - 1,
+                  value - 1
                 )
               }
             />
@@ -415,8 +415,8 @@ export function NoteTab({
         apart from the slur beside it, which groups different pitches as one
         phrase and joins nothing.
       */}
-      <View className="flex-row items-center justify-between">
-        <Text className="text-foreground text-base">
+      <View className='flex-row items-center justify-between'>
+        <Text className='text-foreground text-base'>
           {t('inspector.tieStart')}
         </Text>
         <Switch
@@ -426,8 +426,8 @@ export function NoteTab({
           accessibilityLabel={t('inspector.tieStart')}
         />
       </View>
-      <View className="flex-row items-center justify-between">
-        <Text className="text-foreground text-base">
+      <View className='flex-row items-center justify-between'>
+        <Text className='text-foreground text-base'>
           {t('inspector.tieStop')}
         </Text>
         <Switch
@@ -444,9 +444,9 @@ export function NoteTab({
         hairpins do.
       */}
       <Field label={t('inspector.spans')}>
-        <View className="flex-row flex-wrap gap-2">
+        <View className='flex-row flex-wrap gap-2'>
           <Button
-            variant="secondary"
+            variant='secondary'
             disabled={locked || notes.length < 2}
             onPress={() => toggleGlissando(store)}
             accessibilityLabel={t('inspector.glissando')}
@@ -465,7 +465,7 @@ export function NoteTab({
           {OTTAVAS.map(kind => (
             <Button
               key={kind}
-              variant="secondary"
+              variant='secondary'
               disabled={locked || notes.length < 2}
               onPress={() => toggleOttava(store, kind)}
               accessibilityLabel={kind}
@@ -483,9 +483,9 @@ export function NoteTab({
       */}
       {notes.length === 1 ? (
         <Field label={t('inspector.ornaments')}>
-          <View className="gap-2">
+          <View className='gap-2'>
             <Button
-              variant="secondary"
+              variant='secondary'
               disabled={locked}
               onPress={() => toGraceNote(store, first.id)}
               accessibilityLabel={t('inspector.makeGraceNote')}
@@ -494,7 +494,7 @@ export function NoteTab({
             </Button>
             {graceCount > 0 ? (
               <Button
-                variant="ghost"
+                variant='ghost'
                 disabled={locked}
                 onPress={() => clearGraceNotes(store, [first.id])}
                 accessibilityLabel={t('inspector.clearGraceNotes', {
@@ -511,7 +511,7 @@ export function NoteTab({
       {onReplace ? (
         <ReplaceButton
           document={document}
-          scope="notes"
+          scope='notes'
           label={t('inspector.replaceNotes')}
           onReplace={onReplace}
         />
@@ -592,7 +592,7 @@ function BarBeatFields({
       live,
       barDraft,
       beatDraft,
-      event?.startTick ?? tick,
+      event?.startTick ?? tick
     );
     if (next !== null && !onCommit(next))
       store.getState().pushToast({
@@ -607,28 +607,28 @@ function BarBeatFields({
   };
 
   return (
-    <View className="flex-row gap-2">
-      <View className="flex-1">
+    <View className='flex-row gap-2'>
+      <View className='flex-1'>
         <Field label={t('inspector.bar')}>
           <Input
             value={barDraft}
             onChangeText={setBarDraft}
             onBlur={commit}
             onSubmitEditing={commit}
-            keyboardType="numeric"
+            keyboardType='numeric'
             editable={editable}
             accessibilityLabel={t('inspector.bar')}
           />
         </Field>
       </View>
-      <View className="flex-1">
+      <View className='flex-1'>
         <Field label={t('inspector.beat')}>
           <Input
             value={beatDraft}
             onChangeText={setBeatDraft}
             onBlur={commit}
             onSubmitEditing={commit}
-            keyboardType="decimal-pad"
+            keyboardType='decimal-pad'
             editable={editable}
             accessibilityLabel={t('inspector.beat')}
           />

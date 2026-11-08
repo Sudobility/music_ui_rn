@@ -67,7 +67,7 @@ export function InspectorPanel({
   const { t } = useTranslation();
   const selection = useStore(document.store, s => s.selection);
   const [tab, setTab] = useState<InspectorTab>(() =>
-    defaultInspectorTab(selection),
+    defaultInspectorTab(selection)
   );
   /*
     Re-derived when the selection changes — a fresh tap on a note, a bar or a
@@ -76,10 +76,13 @@ export function InspectorPanel({
   */
   useEffect(() => {
     setTab(defaultInspectorTab(selection));
+    // Keyed on the selection's id lists, not `selection` itself: a new object
+    // with the same ids is the same selection and must not re-run.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selection.eventIds, selection.measureIds, selection.trackIds]);
 
   return (
-    <View className="flex-1" accessibilityLabel={t('editor.inspector')}>
+    <View className='flex-1' accessibilityLabel={t('editor.inspector')}>
       <SegmentedTabs
         label={t('editor.inspector')}
         options={INSPECTOR_TABS.map(value => ({
@@ -88,9 +91,9 @@ export function InspectorPanel({
         }))}
         value={tab}
         onChange={value => setTab(value as InspectorTab)}
-        testID="inspector-tabs"
+        testID='inspector-tabs'
       />
-      <ScrollView className="flex-1" contentContainerClassName="p-3 gap-3">
+      <ScrollView className='flex-1' contentContainerClassName='p-3 gap-3'>
         {tab === 'score' ? (
           <ScoreTab
             document={document}

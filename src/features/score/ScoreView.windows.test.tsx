@@ -44,7 +44,7 @@ it('keeps the base picture and only redraws the highlight layer during playback'
   };
   const drawn = () =>
     mockDraw.mock.calls.map(
-      call => (call[0] as { picture: Picture }).picture.strings[0],
+      call => (call[0] as { picture: Picture }).picture.strings[0]
     );
   mockDraw.mockClear();
   committed.mockClear();

@@ -70,7 +70,7 @@ export function ScoreTab({
   }, [store, composer, metadata?.composer]);
 
   return (
-    <View className="gap-3">
+    <View className='gap-3'>
       <Field
         label={t('inspector.scoreTitle')}
         hint={t('inspector.scoreTitleHint')}

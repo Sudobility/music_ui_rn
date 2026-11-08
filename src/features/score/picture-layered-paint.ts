@@ -25,7 +25,7 @@ export function createPictureLayeredPaint(
   renderer: CanvasScoreRenderer,
   recorder: (width: number, height: number) => PictureRecorder,
   size: () => { width: number; height: number },
-  show: (picture: ScorePicture) => void,
+  show: (picture: ScorePicture) => void
 ) {
   const record = (draw: (ctx: PictureRecorder) => void): Picture => {
     const { width, height } = size();

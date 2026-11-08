@@ -53,7 +53,7 @@ export type TransportBinding = Omit<PlayerBinding, 'unbind'> & PositionSource;
 export function reportPlayerFailure(
   store: TransportStoreApi,
   failure: PlayerFailure,
-  error: unknown,
+  error: unknown
 ): void {
   const detail = error instanceof Error ? error.message : String(error);
   store.getState().pushToast({
@@ -105,10 +105,13 @@ export function usePlayerBinding(store: TransportStoreApi): TransportBinding {
       setTempoMultiplier: m => live.current?.setTempoMultiplier(m),
       setMetronome: enabled => live.current?.setMetronome(enabled),
       setMasterVolume: volume => live.current?.setMasterVolume(volume),
-      onPosition: fn => getMusicPlayerIfInitialized()?.onPosition(fn) ?? (() => {}),
+      onPosition: fn =>
+        getMusicPlayerIfInitialized()?.onPosition(fn) ?? (() => {}),
     }),
     // A new store is a new binding; the facade follows it so a memoised child
     // holding the old one cannot drive a document that is no longer in front.
-    [store],
+    // `store` is used only to key the rebind, hence the "unnecessary" warning.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [store]
   );
 }

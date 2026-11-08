@@ -84,7 +84,7 @@ export function VolumeSlider({
     <View className={ROW_CLASS}>
       <Text className={ROW_LABEL_CLASS}>{rowLabel}</Text>
       <LevelSlider
-        className="flex-1"
+        className='flex-1'
         label={label}
         value={clamped}
         onChange={onChange}
@@ -128,7 +128,7 @@ export function PanSlider({
     <View className={ROW_CLASS}>
       <Text className={ROW_LABEL_CLASS}>{rowLabel}</Text>
       <PositionSlider
-        className="flex-1"
+        className='flex-1'
         label={label}
         value={clamped}
         min={-1}
@@ -143,13 +143,13 @@ export function PanSlider({
         // it brings the touch slop, the pressed answer and the assistive
         // press (withheld while disabled) this used to write out by hand.
         <View
-          className="items-center justify-center"
+          className='items-center justify-center'
           style={{ width: ROW_ACTION_WIDTH, height: ROW_ACTION_WIDTH }}
         >
           <IconButton label={resetLabel} onPress={onReset} disabled={!canReset}>
             {/* A reset arrow: ⌖ was the obvious "centre" mark and was
                 illegible at this size. */}
-            <Text className="text-muted-foreground text-base">↺</Text>
+            <Text className='text-muted-foreground text-base'>↺</Text>
           </IconButton>
         </View>
       ) : (

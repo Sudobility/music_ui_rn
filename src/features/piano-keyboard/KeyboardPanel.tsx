@@ -125,7 +125,7 @@ export function KeyboardPanel({
       for (const timer of soundingTaps.current) clearTimeout(timer);
       soundingTaps.current.clear();
     },
-    [],
+    []
   );
 
   useEffect(() => {
@@ -167,9 +167,9 @@ export function KeyboardPanel({
         asSounding(sounding, activeTrackId),
         activeTrackId,
         transportState,
-        held,
+        held
       ),
-    [sounding, activeTrackId, transportState, held],
+    [sounding, activeTrackId, transportState, held]
   );
 
   /*
@@ -184,12 +184,12 @@ export function KeyboardPanel({
   const selectedMidis = useMemo(() => {
     const chord = chordSelection(selectedNotes);
     return new Set<number>(
-      (chord?.notes ?? []).map(note => pitchToMidi(note.pitch)),
+      (chord?.notes ?? []).map(note => pitchToMidi(note.pitch))
     );
   }, [selectedNotes]);
 
   const track = useStore(document.store, s =>
-    s.score?.tracks.find(t => t.id === activeTrackId),
+    s.score?.tracks.find(t => t.id === activeTrackId)
   );
   /*
     What a pressed key sounds as — music_types' `auditionVoiceFor`, the web
@@ -213,7 +213,7 @@ export function KeyboardPanel({
    */
   const keyboard = useMemo(
     () => keyboardKeys({ height, track, pitchDisplay }),
-    [height, track, pitchDisplay],
+    [height, track, pitchDisplay]
   );
   const { playable } = keyboard;
 
@@ -231,7 +231,7 @@ export function KeyboardPanel({
       getMusicPlayerIfInitialized()?.noteOn(midi, program, isPercussion);
       return true;
     },
-    [program, isPercussion, playable],
+    [program, isPercussion, playable]
   );
 
   /**
@@ -254,7 +254,7 @@ export function KeyboardPanel({
       const { group: next, finished } = releaseKey(
         group.current,
         midi,
-        Date.now(),
+        Date.now()
       );
       group.current = next;
       // Only once the last finger lifts. `playKeyGroup` decides the rest —
@@ -263,10 +263,10 @@ export function KeyboardPanel({
       if (!finished) return;
       playKeyGroup(
         document.store,
-        timed ? finished : { ...finished, heldMs: null },
+        timed ? finished : { ...finished, heldMs: null }
       );
     },
-    [document],
+    [document]
   );
 
   const onKeyUp = useCallback(
@@ -274,7 +274,7 @@ export function KeyboardPanel({
       getMusicPlayerIfInitialized()?.noteOff(midi);
       release(midi, true);
     },
-    [release],
+    [release]
   );
 
   /*
@@ -302,7 +302,7 @@ export function KeyboardPanel({
       }, TAP_AUDITION_MS);
       soundingTaps.current.add(timer);
     },
-    [onKeyDown, release],
+    [onKeyDown, release]
   );
 
   const scroller = useRef<ScrollView>(null);
@@ -342,7 +342,7 @@ export function KeyboardPanel({
         apply: position => {
           const max = Math.max(
             0,
-            geometry.current.content - geometry.current.view,
+            geometry.current.content - geometry.current.view
           );
           const x = Math.min(Math.max(position, 0), max);
           scroller.current?.scrollTo({ x, animated: false });
@@ -350,7 +350,7 @@ export function KeyboardPanel({
           setScrollX(x);
         },
       }),
-    [overshoot],
+    [overshoot]
   );
   useEffect(() => () => kinetic.stop(), [kinetic]);
 
@@ -371,7 +371,7 @@ export function KeyboardPanel({
       kinetic.sync(event.nativeEvent.contentOffset.x);
       setScrollX(event.nativeEvent.contentOffset.x);
     },
-    [kinetic],
+    [kinetic]
   );
 
   const strip = useMemo(
@@ -386,7 +386,7 @@ export function KeyboardPanel({
         onPanResponderRelease: () => kinetic.release(),
         onPanResponderTerminate: () => kinetic.release(),
       }),
-    [kinetic],
+    [kinetic]
   );
 
   /*
@@ -408,7 +408,7 @@ export function KeyboardPanel({
     // `testID` so the panel is addressable as a whole: its keys are not drawn
     // until it has been measured, and a test renderer measures nothing, so
     // there is no key to point at when asserting where the panel sits.
-    <View testID="piano-keyboard-panel" className="border-border border-t">
+    <View testID='piano-keyboard-panel' className='border-border border-t'>
       <ScrollView
         ref={scroller}
         horizontal
@@ -422,7 +422,7 @@ export function KeyboardPanel({
         // centred; a wider one is wider than this and simply scrolls.
         contentContainerStyle={styles.centred}
         bounces={false}
-        keyboardShouldPersistTaps="always"
+        keyboardShouldPersistTaps='always'
       >
         {measured ? (
           <Animated.View
@@ -444,7 +444,7 @@ export function KeyboardPanel({
               onKeyTap={onKeyTap}
             />
             <View
-              testID="piano-keyboard-scroll-strip"
+              testID='piano-keyboard-scroll-strip'
               style={[styles.strip, { height: keyboard.labelGutter }]}
               {...strip.panHandlers}
             />
@@ -453,9 +453,9 @@ export function KeyboardPanel({
       </ScrollView>
       {indicator ? (
         <View
-          testID="piano-keyboard-scroll-indicator"
-          pointerEvents="none"
-          className="bg-muted-foreground absolute rounded-full opacity-50"
+          testID='piano-keyboard-scroll-indicator'
+          pointerEvents='none'
+          className='bg-muted-foreground absolute rounded-full opacity-50'
           style={{
             bottom: 2,
             left: indicator.left,
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
 /** The kept pitch set, in the shape `litKeys` reads: already this track's. */
 function asSounding(
   pitches: ReadonlySet<number>,
-  trackId: UUID | null,
+  trackId: UUID | null
 ): SoundingNote[] {
   if (!trackId) return [];
   return [...pitches].map(midi => ({ noteId: '', trackId, midi }));

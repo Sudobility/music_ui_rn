@@ -174,7 +174,7 @@ export type EditorToolbarProps = {
       label: string;
       done: number;
       total: number;
-    },
+    }
   ) => void;
   /** The device-prefs store (the app's `devicePrefs`), injected: track-info and pitch-display toggles read and write it. */
   devicePrefs: DevicePrefsStore;
@@ -257,7 +257,7 @@ export function EditorToolbar({
    */
   const durationShown = useMemo(
     () => durationDisplay(selectedNotes, score?.ppq ?? 480, snapGrid),
-    [selectedNotes, score?.ppq, snapGrid],
+    [selectedNotes, score?.ppq, snapGrid]
   );
 
   // music_types' count, so this and every other surface agree on which track's
@@ -284,7 +284,7 @@ export function EditorToolbar({
   }));
 
   const articulationOptions: ToolbarOption[] = ARTICULATION_OPTIONS.map(
-    option => ({ value: option.value, label: t(option.labelKey) }),
+    option => ({ value: option.value, label: t(option.labelKey) })
   );
 
   /*
@@ -337,7 +337,7 @@ export function EditorToolbar({
         const inserted = insertBlankMeasuresAtCaret(
           store,
           result.count,
-          result.position,
+          result.position
         );
         if (!inserted || !result.generate || !onGenerateInsertedBars) return;
         const nextScore = store.getState().score;
@@ -345,7 +345,7 @@ export function EditorToolbar({
           nextScore?.tracks.flatMap(track =>
             track.measures
               .slice(inserted.startIndex, inserted.startIndex + inserted.count)
-              .map(measure => measure.id),
+              .map(measure => measure.id)
           ) ?? [];
         store.getState().selectMeasures(measureIds);
         await onGenerateInsertedBars();
@@ -377,7 +377,7 @@ export function EditorToolbar({
       }
     >
       {durationShown.kind === 'mixed' ? (
-        <Text className="text-foreground text-base">…</Text>
+        <Text className='text-foreground text-base'>…</Text>
       ) : (
         <NotationIcon
           name={DURATION_ICON[durationShown.base]}
@@ -389,7 +389,7 @@ export function EditorToolbar({
   const durationModifierControls = (
     <Group label={t('editor.durationModifier')}>
       <GlyphChip
-        icon="DottedIcon"
+        icon='DottedIcon'
         label={t('editor.dotted')}
         hint={t('editor.dottedHint')}
         disabled={!available.dotted}
@@ -397,7 +397,7 @@ export function EditorToolbar({
         onPress={() => chooseDuration(store, withModifier(snapGrid, 'dotted'))}
       />
       <GlyphChip
-        icon="TripletIcon"
+        icon='TripletIcon'
         label={t('editor.triplet')}
         hint={t('editor.tripletHint')}
         disabled={!available.triplet}
@@ -414,7 +414,7 @@ export function EditorToolbar({
       disabled={!available.accidental}
       onChange={value => changeAccidental(store, Number(value) as Accidental)}
     >
-      <NotationIcon name="SharpIcon" color={ink.foreground} />
+      <NotationIcon name='SharpIcon' color={ink.foreground} />
     </ToolbarSelect>
   );
   const articulationControl = (
@@ -426,11 +426,11 @@ export function EditorToolbar({
       onChange={value =>
         changeArticulation(
           store,
-          value === NO_MARK ? undefined : (value as Articulation),
+          value === NO_MARK ? undefined : (value as Articulation)
         )
       }
     >
-      <NotationIcon name="ArticulationIcon" color={ink.foreground} />
+      <NotationIcon name='ArticulationIcon' color={ink.foreground} />
     </ToolbarSelect>
   );
   const ornamentControl = (
@@ -442,52 +442,52 @@ export function EditorToolbar({
       onChange={value =>
         changeOrnament(
           store,
-          value === NO_MARK ? undefined : (value as Ornament),
+          value === NO_MARK ? undefined : (value as Ornament)
         )
       }
     >
-      <NotationIcon name="OrnamentIcon" color={ink.foreground} />
+      <NotationIcon name='OrnamentIcon' color={ink.foreground} />
     </ToolbarSelect>
   );
   const markControls = (
     <Group label={t('editor.articulation')}>
       <GlyphChip
-        icon="TieIcon"
+        icon='TieIcon'
         label={t('editor.toggleTie')}
         hint={t('editor.toggleTie')}
         disabled={!available.tie}
         onPress={() => toggleTie(store, 'tieStart')}
       />
       <GlyphChip
-        icon="SlurIcon"
+        icon='SlurIcon'
         label={t('editor.slur')}
         hint={t('editor.slurHint')}
         disabled={!available.slur}
         onPress={() => toggleSlur(store)}
       />
       <GlyphChip
-        icon="CrescendoIcon"
+        icon='CrescendoIcon'
         label={t('editor.crescendo')}
         hint={t('editor.crescendoHint')}
         disabled={!available.crescendo}
         onPress={() => toggleHairpin(store, 'crescendo')}
       />
       <GlyphChip
-        icon="DiminuendoIcon"
+        icon='DiminuendoIcon'
         label={t('editor.diminuendo')}
         hint={t('editor.diminuendoHint')}
         disabled={!available.diminuendo}
         onPress={() => toggleHairpin(store, 'diminuendo')}
       />
       <GlyphChip
-        icon="ArpeggioIcon"
+        icon='ArpeggioIcon'
         label={t('editor.arpeggiate')}
         hint={t('editor.arpeggiateHint')}
         disabled={!available.arpeggiate}
         onPress={() => toggleArpeggiate(store)}
       />
       <GlyphChip
-        icon="FermataIcon"
+        icon='FermataIcon'
         label={t('editor.fermata')}
         hint={t('editor.fermataHint')}
         disabled={!available.fermata}
@@ -498,14 +498,14 @@ export function EditorToolbar({
   const beamControls = (
     <Group label={t('editor.beamBreak')}>
       <GlyphChip
-        icon="BeamBreakIcon"
+        icon='BeamBreakIcon'
         label={t('editor.beamBreak')}
         hint={t('editor.beamBreakHint')}
         disabled={!available.beamBreak}
         onPress={() => changeBeam(store, 'break')}
       />
       <GlyphChip
-        icon="BeamNoneIcon"
+        icon='BeamNoneIcon'
         label={t('editor.beamNone')}
         hint={t('editor.beamNoneHint')}
         disabled={!available.beamNone}
@@ -534,14 +534,14 @@ export function EditorToolbar({
   const insertControls = (
     <Group label={t('editor.insertNote')}>
       <GlyphChip
-        icon="InsertNoteIcon"
+        icon='InsertNoteIcon'
         label={t('editor.insertNote')}
         hint={t('editor.insertNoteHint')}
         disabled={!available.insertNote}
         onPress={() => insertDefaultNoteAtCaret(store)}
       />
       <GlyphChip
-        icon="InsertRestIcon"
+        icon='InsertRestIcon'
         label={t('editor.insertRest')}
         hint={t('editor.insertRestHint')}
         disabled={!available.insertRest}
@@ -577,19 +577,19 @@ export function EditorToolbar({
         disabled={!available.quantizeGrid}
         onChange={value => setQuantizeGrid(value as QuantizeGrid)}
       >
-        <Text className="text-foreground text-sm">
+        <Text className='text-foreground text-sm'>
           {QUANTIZE_GRID_SHORT[quantizeGrid]}
         </Text>
       </ToolbarSelect>
       <GlyphChip
-        icon="QuantizeIcon"
+        icon='QuantizeIcon'
         label={t('editor.quantize')}
         hint={t('editor.quantizeHint')}
         disabled={!available.quantize}
         loading={quantizing.pending}
         onPress={() =>
           void quantizing.run(() =>
-            quantizeSelectionToGrid(store, quantizeGrid),
+            quantizeSelectionToGrid(store, quantizeGrid)
           )
         }
       />
@@ -623,7 +623,7 @@ export function EditorToolbar({
   const zoomControls = (
     <View
       accessibilityLabel={t('editor.currentZoom')}
-      className="flex-row items-center gap-0.5"
+      className='flex-row items-center gap-0.5'
     >
       <IconButton
         label={t('editor.zoomOut')}
@@ -631,8 +631,8 @@ export function EditorToolbar({
       >
         <MagnifyingGlassMinusIcon size={ICON_SIZE} color={ink.foreground} />
       </IconButton>
-      <View className="w-16">
-        <Text className="text-foreground text-center text-sm">{zoomLabel}</Text>
+      <View className='w-16'>
+        <Text className='text-foreground text-center text-sm'>{zoomLabel}</Text>
       </View>
       <IconButton
         label={t('editor.zoomIn')}
@@ -645,14 +645,14 @@ export function EditorToolbar({
   const layoutControls = (
     <Group label={t('editor.layoutMode')}>
       <GlyphChip
-        icon="PageLayoutIcon"
+        icon='PageLayoutIcon'
         label={t('editor.pageLayout')}
         hint={t('editor.pageHint')}
         selected={layoutMode === 'page'}
         onPress={() => onLayoutModeChange('page')}
       />
       <GlyphChip
-        icon="ContinuousLayoutIcon"
+        icon='ContinuousLayoutIcon'
         label={t('editor.continuousLayout')}
         hint={t('editor.continuousHint')}
         selected={layoutMode === 'continuous'}
@@ -662,7 +662,7 @@ export function EditorToolbar({
   );
   const trackInfoControl = (
     <GlyphChip
-      icon="TrackInfoIconIcon"
+      icon='TrackInfoIconIcon'
       label={
         trackInfo === 'icon'
           ? t('editor.trackInfoFull')
@@ -682,7 +682,7 @@ export function EditorToolbar({
       label={t(
         pitchDisplay === 'written'
           ? 'editor.pitchWrittenShort'
-          : 'editor.pitchConcertShort',
+          : 'editor.pitchConcertShort'
       )}
       name={
         pitchDisplay === 'written'
@@ -820,10 +820,10 @@ export function EditorToolbar({
     ];
     return (
       <View
-        accessibilityRole="toolbar"
+        accessibilityRole='toolbar'
         accessibilityLabel={t('editor.toolbar')}
         onLayout={onBarLayout}
-        className="bg-card flex-row items-center gap-1 px-2 py-1"
+        className='bg-card flex-row items-center gap-1 px-2 py-1'
       >
         {addTrackControl}
         {noteDurationControl}
@@ -835,7 +835,7 @@ export function EditorToolbar({
         >
           <EllipsisHorizontalIcon size={ICON_SIZE} color={ink.foreground} />
         </IconButton>
-        <View className="flex-1" />
+        <View className='flex-1' />
         {inspectorControl}
         <ControlsSheet
           open={moreToolsOpen}
@@ -850,14 +850,14 @@ export function EditorToolbar({
 
   return (
     <View
-      accessibilityRole="toolbar"
+      accessibilityRole='toolbar'
       accessibilityLabel={t('editor.toolbar')}
       onLayout={onBarLayout}
       // A wide window has room for every control, so they all show inline (no
       // "more tools" sheet); it wraps to a second row only if the window is a
       // little narrow, and collapses to the compact arrangement once it crosses
       // the size-class threshold.
-      className="bg-card flex-row flex-wrap items-center gap-1 px-2 py-1"
+      className='bg-card flex-row flex-wrap items-center gap-1 px-2 py-1'
     >
       {addTrackControl}
       <Divider />
@@ -883,13 +883,13 @@ export function EditorToolbar({
       {moreControl}
       {/* The view controls: these change how you look at the score, not the
           score itself. A left divider sets them apart from the tools. */}
-      <View className="border-border flex-row items-center gap-0.5 border-l pl-1">
+      <View className='border-border flex-row items-center gap-0.5 border-l pl-1'>
         {zoomControls}
         {layoutControls}
         {trackInfoControl}
         {pitchControl}
       </View>
-      <View className="flex-row shrink-0 items-center pr-1">
+      <View className='flex-row shrink-0 items-center pr-1'>
         {inspectorControl}
       </View>
       {sheets}
@@ -909,14 +909,14 @@ export function EditorToolbar({
  */
 function Group({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <View accessibilityLabel={label} className="flex-row items-center gap-1">
+    <View accessibilityLabel={label} className='flex-row items-center gap-1'>
       {children}
     </View>
   );
 }
 
 function Divider() {
-  return <View className="bg-border mx-1 h-6 w-px" />;
+  return <View className='bg-border mx-1 h-6 w-px' />;
 }
 
 /** A toolbar control showing one notation glyph. */
