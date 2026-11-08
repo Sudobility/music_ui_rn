@@ -29,6 +29,7 @@ import {
 } from 'react-native-heroicons/outline';
 import type { SaveState as DocumentSaveState } from '@sudobility/music_lib';
 import { IconButton } from './IconButton';
+import { useNavigator } from '../../navigation/navigator';
 import { OverflowMenu } from '../controls';
 import type { OverflowAction } from '../controls';
 import { useNotationInk } from '../../icons';
@@ -44,27 +45,10 @@ export type TitleBarProps = {
   /** An export is being written: the Export button spins and refuses. */
   exporting?: boolean;
   /**
-   * Opens Settings — required, not optional, because it is the only way there.
-   *
-   * Theme, language, sign-in and the links to Docs, Shortcuts, Resources,
-   * About and Credits all live on that screen, and nothing in the app
-   * navigated to it: it was in the stack and unreachable. On the Mac the
-   * AppKit "Settings…" item (⌘,) is the template item the project was
-   * generated with, whose menu entry names no action at all, so it is disabled
-   * and cannot carry this without a native change.
+   * Projects and Settings are shared routes: the title bar navigates to them
+   * through the shared `useNavigator` (`go('projects')` / `go('settings')`), so
+   * they take no callback. The Mac also reaches them through the File menu.
    */
-  onSettings: () => void;
-  /**
-   * Opens the projects list.
-   *
-   * Required, like `onSettings`, and for the same reason: nothing else in the
-   * app navigated to that screen. It was in the stack and unreachable — and
-   * with it every way *in* to a document that is not the scratch one the app
-   * opens at launch: New Project, Import (MIDI, MusicXML, module, audio) and
-   * the list of server projects. The Mac reaches those through the File menu,
-   * which iOS and Android do not have.
-   */
-  onDocuments: () => void;
   /**
    * Shows the keyboard shortcuts, over the score — the web title bar's "?".
    * Optional, so a holder with no sheet to show offers no button for one.
@@ -82,8 +66,6 @@ export function TitleBar({
   onSave,
   onExport,
   exporting = false,
-  onSettings,
-  onDocuments,
   onShortcuts,
   onSnapshots,
   onPrint,
@@ -106,8 +88,6 @@ export function TitleBar({
       <View className="flex-1" />
 
       <TitleBarAppActions
-        onSettings={onSettings}
-        onDocuments={onDocuments}
         {...(onShortcuts ? { onShortcuts } : {})}
       />
     </View>
@@ -258,10 +238,7 @@ export function TitleBarDocumentActions({
   );
 }
 
-export type TitleBarAppActionsProps = Pick<
-  TitleBarProps,
-  'onSettings' | 'onDocuments' | 'onShortcuts'
->;
+export type TitleBarAppActionsProps = Pick<TitleBarProps, 'onShortcuts'>;
 
 /**
  * The app's own actions, on the right, where the web header puts them.
@@ -275,13 +252,14 @@ export type TitleBarAppActionsProps = Pick<
  * has no equivalent of.
  */
 export function TitleBarAppActions({
-  onSettings,
-  onDocuments,
   onShortcuts,
   tint,
 }: TitleBarAppActionsProps & { tint?: string }) {
   const { t } = useTranslation();
   const ink = useNotationInk();
+  // Projects and Settings are shared routes — navigate through the shared
+  // Navigator rather than an injected callback.
+  const nav = useNavigator();
   const color = tint ?? ink.onPrimary;
   return (
     <View className="flex-row items-center gap-1">
@@ -292,10 +270,10 @@ export function TitleBarAppActions({
           <QuestionMarkCircleIcon size={ICON_SIZE} color={color} />
         </IconButton>
       ) : null}
-      <IconButton label={t('nav.projects')} onPress={onDocuments}>
+      <IconButton label={t('nav.projects')} onPress={() => nav.go('projects')}>
         <RectangleStackIcon size={ICON_SIZE} color={color} />
       </IconButton>
-      <IconButton label={t('nav.settings')} onPress={onSettings}>
+      <IconButton label={t('nav.settings')} onPress={() => nav.go('settings')}>
         <Cog6ToothIcon size={ICON_SIZE} color={color} />
       </IconButton>
     </View>
@@ -320,8 +298,6 @@ export function TitleBarActions({
   onSnapshots,
   onPrint,
   printing = false,
-  onSettings,
-  onDocuments,
   onShortcuts,
   phone,
   tint,
@@ -329,6 +305,7 @@ export function TitleBarActions({
   TitleBarAppActionsProps & { phone: boolean; tint?: string }) {
   const { t } = useTranslation();
   const ink = useNotationInk();
+  const nav = useNavigator();
   const color = tint ?? ink.onPrimary;
   const saveState = useStore(document.store, s => s.saveState);
   const canUndo = useStore(document.store, s => s.canUndo);
@@ -351,8 +328,6 @@ export function TitleBarActions({
           {...(tint ? { tint } : {})}
         />
         <TitleBarAppActions
-          onSettings={onSettings}
-          onDocuments={onDocuments}
           {...(onShortcuts ? { onShortcuts } : {})}
           {...(tint ? { tint } : {})}
         />
@@ -390,8 +365,8 @@ export function TitleBarActions({
           },
         ]
       : []),
-    { key: 'projects', label: t('nav.projects'), onPress: onDocuments },
-    { key: 'settings', label: t('nav.settings'), onPress: onSettings },
+    { key: 'projects', label: t('nav.projects'), onPress: () => nav.go('projects') },
+    { key: 'settings', label: t('nav.settings'), onPress: () => nav.go('settings') },
   ];
 
   return (
