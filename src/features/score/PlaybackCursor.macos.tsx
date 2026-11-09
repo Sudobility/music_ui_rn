@@ -2,16 +2,18 @@
  * The red playhead line on the Mac — drawn by a native view, frame by frame.
  *
  * It draws what `ScoreCanvas` describes, exactly as the shared variant does,
- * but hands the description to `@moosiac/playhead`: an `NSView` that replays
- * `cursorTickAt` / `cursorXAt` / `cursorVisible` with the display link. The
+ * but hands the description to a native `NSView` that replays
+ * `cursorTickAt` / `cursorXAt` / `cursorVisible` with the display link. That
+ * view is **app-provided** — the app's own `native/playhead` module, injected
+ * through `usePlayheadView()`, because a UI library ships no native code. The
  * shared variant's `useNativeDriver` animation cannot be used here — on this
  * react-native-macos build native-driven animations never reach a view
  * (measured: a native-driven opacity loop left its view untouched).
  */
 import { StyleSheet, View } from 'react-native';
-import { PlayheadView } from '@moosiac/playhead';
 import { CURSOR_WIDTH } from './PlaybackCursor';
 import type { PlaybackCursorProps } from './PlaybackCursor';
+import { usePlayheadView } from './playhead';
 import { useSignal } from './useScoreCanvas';
 
 export type { PlaybackCursorProps } from './PlaybackCursor';
@@ -21,6 +23,7 @@ export function PlaybackCursor({
   scroll,
   color,
 }: PlaybackCursorProps) {
+  const PlayheadView = usePlayheadView();
   const cursor = useSignal(cursorSignal);
   const { left: scrollLeft, top: scrollTop } = useSignal(scroll);
   const { path, motion } = cursor;

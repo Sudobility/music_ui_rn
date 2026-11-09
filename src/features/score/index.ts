@@ -1,4 +1,5 @@
 export * from './PlaybackCursor';
+export * from './playhead';
 export * from './ScoreView';
 export * from './ScrollingScore';
 export * from './picture-layered-paint';
