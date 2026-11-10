@@ -19,10 +19,11 @@
  * (`defaultPaperSizeFor`). What to print and which way up are held here: they
  * are about this printout, not the printer.
  */
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { FormModal, Select } from '@sudobility/components-rn';
+import { usePrintOptions } from '@sudobility/printing_core/react';
 import { WHOLE_SCORE } from '@sudobility/music_drawing';
 import type { PrintPlanOptions } from '@sudobility/music_drawing';
 import type { Score } from '@sudobility/music_types';
@@ -74,13 +75,21 @@ export function PrintSheet({
   defaultPaperSize,
 }: PrintSheetProps) {
   const { t } = useTranslation();
-  const [scope, setScope] = useState<string>(WHOLE_SCORE);
+  // The shared options hook holds scope and orientation (about this printout)
+  // and reflects the remembered paper (about the printer) back through
+  // onPaperSizeChange — the same split the web print view uses.
+  const { scope, setScope, paper, setPaper, orientation, setOrientation } =
+    usePrintOptions({
+      scope: WHOLE_SCORE,
+      rememberedPaper: paperSize,
+      defaultPaper: defaultPaperSize,
+      onPaperChange: onPaperSizeChange,
+    });
+  // The sheet opens on a given track's part each time it opens (a store
+  // screenshot sets it); the hook seeds scope once, so reassert it on open.
   useEffect(() => {
     if (open && initialScope) setScope(initialScope);
-  }, [open, initialScope]);
-  const paper = paperSize ?? defaultPaperSize;
-  const setPaper = onPaperSizeChange;
-  const [orientation, setOrientation] = useState<PaperOrientation>('portrait');
+  }, [open, initialScope, setScope]);
 
   // A part whose track has since been deleted falls back to the whole score
   // rather than printing nothing.
