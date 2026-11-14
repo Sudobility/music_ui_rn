@@ -130,7 +130,6 @@ export default [
       'vendor/**',
       'ios/**',
       'android/**',
-      '.expo/**',
     ],
   },
 ];
