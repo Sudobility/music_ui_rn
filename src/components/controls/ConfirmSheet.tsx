@@ -18,7 +18,19 @@ export type ConfirmSheetProps = {
   open: boolean;
   title: string;
   message: string;
-  confirmLabel: string;
+  /**
+   * A quieter line under the message — a rate, a caveat, the fine print. Drawn
+   * muted and smaller, so it reads as a footnote to the question rather than a
+   * second question.
+   */
+  secondaryMessage?: string;
+  /**
+   * The confirm button's label. Optional, together with `onConfirm`: a sheet
+   * that only states something and offers a way out — a refusal with no action
+   * to take — passes neither, and then Cancel is the only button. (A sheet with
+   * a confirm is the usual case; this is the degenerate one.)
+   */
+  confirmLabel?: string;
   /** Paints the confirm button as the dangerous answer. */
   destructive?: boolean;
   /**
@@ -27,7 +39,7 @@ export type ConfirmSheetProps = {
    * stays up so the reader sees the wait on the control they pressed.
    */
   busy?: boolean;
-  onConfirm: () => void;
+  onConfirm?: () => void;
   onCancel: () => void;
 };
 
@@ -37,6 +49,7 @@ export function ConfirmSheet({
   open,
   title,
   message,
+  secondaryMessage,
   confirmLabel,
   destructive = false,
   busy = false,
@@ -44,6 +57,21 @@ export function ConfirmSheet({
   onCancel,
 }: ConfirmSheetProps) {
   const { t } = useTranslation();
+  // The confirm button exists only when there is something to confirm; without
+  // it the sheet is Cancel alone, a stated fact with a way out.
+  const confirmAction =
+    confirmLabel && onConfirm
+      ? [
+          {
+            label: confirmLabel,
+            onPress: onConfirm,
+            variant: destructive
+              ? ('destructive' as const)
+              : ('primary' as const),
+            loading: busy,
+          },
+        ]
+      : [];
   return (
     <FormModal
       visible={open}
@@ -55,20 +83,20 @@ export function ConfirmSheet({
         {
           label: t('common.cancel'),
           onPress: onCancel,
-          variant: 'ghost',
+          variant: 'ghost' as const,
           disabled: busy,
         },
-        {
-          label: confirmLabel,
-          onPress: onConfirm,
-          variant: destructive ? 'destructive' : 'primary',
-          loading: busy,
-        },
+        ...confirmAction,
       ]}
       closeAriaLabel={t('common.closeDialog')}
     >
-      <View className='p-1'>
+      <View className='gap-2 p-1'>
         <Text className='text-foreground text-base'>{message}</Text>
+        {secondaryMessage ? (
+          <Text className='text-muted-foreground text-sm'>
+            {secondaryMessage}
+          </Text>
+        ) : null}
       </View>
     </FormModal>
   );

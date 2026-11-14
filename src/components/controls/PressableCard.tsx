@@ -40,6 +40,23 @@ export type PressableCardProps = {
   loading?: boolean;
   /** The card is drawn but refuses: another card's work is under way. */
   disabled?: boolean;
+  /**
+   * What the card is, to a screen reader. A card that opens something *in* the
+   * app is a `'button'` (the default); one whose every press *leaves* the app —
+   * an outbound link — is a `'link'`, so it is announced as a link and offers
+   * the link gesture set. See the Resources screen's outbound tiles.
+   */
+  role?: 'button' | 'link';
+  /** Spoken after the label: where choosing it leads. */
+  accessibilityHint?: string;
+  /**
+   * Stretch to the height the card is given rather than to its content, so a
+   * tile sharing a row with a taller one matches it instead of drawing short.
+   * Honoured only without a `footer` — a footered card frames its own height —
+   * and off by default, since a card in a vertical list wants its content's
+   * height, not its container's.
+   */
+  fill?: boolean;
 };
 
 export function PressableCard({
@@ -49,6 +66,9 @@ export function PressableCard({
   footer,
   loading = false,
   disabled = false,
+  role = 'button',
+  accessibilityHint,
+  fill = false,
 }: PressableCardProps) {
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
@@ -56,8 +76,9 @@ export function PressableCard({
   const inert = disabled || loading;
   const surface = (
     <Pressable
-      accessibilityRole='button'
+      accessibilityRole={role}
       accessibilityLabel={label}
+      accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: inert, busy: loading }}
       onPress={onPress}
       disabled={inert}
@@ -78,6 +99,7 @@ export function PressableCard({
       onPressOut={() => setPressed(false)}
       className={cn(
         footer ? 'p-3' : 'rounded-lg border p-3',
+        fill && !footer && 'flex-1',
         pressed
           ? 'border-primary bg-primary/20'
           : hovered

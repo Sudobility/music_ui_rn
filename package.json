@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/music_ui_rn",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Shared functional UI for ScoreSmith's React Native apps (editor shell, toolbar, transport, inspector, score view, keyboard, spatial, print) — navigation stays in the app shells",
   "type": "module",
   "main": "dist/index.esm.js",

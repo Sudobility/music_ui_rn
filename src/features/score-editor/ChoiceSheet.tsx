@@ -6,9 +6,10 @@
  * app has the same component for the same reason; this is its native half, and
  * the copy is the same locale key on both so the two cannot drift.
  *
- * Every answer carries a *detail* line saying what it does to the score, since
- * the labels alone ("Insert", "Replace") describe the button rather than the
- * consequence.
+ * An answer may carry a *detail* line saying what it does to the score, since a
+ * label alone ("Insert", "Replace") describes the button rather than the
+ * consequence. A label that already says everything — a plain "Visible only" /
+ * "Whole score" — carries none, and then the body is just the question.
  */
 import { View } from 'react-native';
 import { FormModal, Text } from '@sudobility/components-rn';
@@ -17,7 +18,12 @@ import { useTranslation } from 'react-i18next';
 export type Choice<T extends string> = {
   value: T;
   label: string;
-  detail: string;
+  /**
+   * What this answer does, spelled out under its label. Optional: a choice
+   * whose label is already the whole story carries none, and no body row is
+   * drawn for it.
+   */
+  detail?: string;
   /** The answer offered first, and the one a hurried reader will take. */
   primary?: boolean;
   /**
@@ -75,18 +81,20 @@ export function ChoiceSheet<T extends string>({
     >
       <View className='gap-3 p-1'>
         <Text className='text-foreground text-base'>{message}</Text>
-        {choices.map(c => (
-          <View
-            key={c.value}
-            className='gap-0.5'
-            style={c.disabled ? { opacity: 0.5 } : undefined}
-          >
-            <Text className='text-foreground text-base font-medium'>
-              {c.label}
-            </Text>
-            <Text className='text-muted-foreground text-sm'>{c.detail}</Text>
-          </View>
-        ))}
+        {choices.map(c =>
+          c.detail ? (
+            <View
+              key={c.value}
+              className='gap-0.5'
+              style={c.disabled ? { opacity: 0.5 } : undefined}
+            >
+              <Text className='text-foreground text-base font-medium'>
+                {c.label}
+              </Text>
+              <Text className='text-muted-foreground text-sm'>{c.detail}</Text>
+            </View>
+          ) : null
+        )}
       </View>
     </FormModal>
   );
