@@ -484,7 +484,7 @@ export function ScrollingScore({
           and across whatever sits below it — the piano keyboard, once that
           started expanded. A view does not clip its children by default here.
         */
-          <View style={styles.pinned} pointerEvents='none'>
+          <View style={[styles.pinned, { height }]} pointerEvents='none'>
             <ScoreView picture={picture} height={height} />
             <PlaybackCursor
               cursor={cursor}

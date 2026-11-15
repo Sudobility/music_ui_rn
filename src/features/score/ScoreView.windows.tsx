@@ -30,8 +30,11 @@ export function ScoreView({ picture: pictureSignal, height }: ScoreViewProps) {
           {/* `CanvasPicture` is memoised on the picture object, and the base
               object is kept while only the lit notes change: the base view
               is not redrawn during playback. */}
-          <CanvasPicture picture={picture.base} style={styles.layer} />
-          <CanvasPicture picture={picture.overlay} style={styles.layer} />
+          <CanvasPicture picture={picture.base} style={[styles.layer, { height }]} />
+          <CanvasPicture
+            picture={picture.overlay}
+            style={[styles.layer, { height }]}
+          />
         </>
       ) : null}
     </View>
@@ -40,5 +43,10 @@ export function ScoreView({ picture: pictureSignal, height }: ScoreViewProps) {
 
 const styles = StyleSheet.create({
   fill: { flex: 1, width: '100%' },
-  layer: StyleSheet.absoluteFillObject,
+  // Explicit height, not `absoluteFillObject`: on React Native Windows 0.85 a
+  // top:0/bottom:0 pair no longer resolves to a height for a native view, so
+  // the picture view got a 1264x0 frame and `PictureView::Draw` early-returned
+  // (the score was blank while the explicitly-sized Spatial LineScene drew).
+  // left:0/right:0 still gives the width.
+  layer: { position: 'absolute', top: 0, left: 0, right: 0 },
 });
