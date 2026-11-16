@@ -5,7 +5,7 @@
  * Transparent, as the Skia view is: the app's background shows through, so a
  * dark theme's light notation is not drawn on white.
  */
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { CanvasPicture } from '@sudobility/windows_canvas_rn';
 import { useSignal } from './useScoreCanvas';
@@ -23,18 +23,20 @@ export function ScoreView({ picture: pictureSignal, height }: ScoreViewProps) {
   useLayoutEffect(() => {
     picture?.committed();
   }, [picture]);
+  // Stable references so `CanvasPicture`'s memoisation holds: a fresh style
+  // array/object each render would change the base layer's props and redraw
+  // it on every lit-notes frame, defeating the whole point of the split.
+  const layerStyle = useMemo(() => [styles.layer, { height }], [height]);
+  const fillStyle = useMemo(() => [styles.fill, { height }], [height]);
   return (
-    <View style={[styles.fill, { height }]}>
+    <View style={fillStyle}>
       {picture ? (
         <>
           {/* `CanvasPicture` is memoised on the picture object, and the base
               object is kept while only the lit notes change: the base view
               is not redrawn during playback. */}
-          <CanvasPicture picture={picture.base} style={[styles.layer, { height }]} />
-          <CanvasPicture
-            picture={picture.overlay}
-            style={[styles.layer, { height }]}
-          />
+          <CanvasPicture picture={picture.base} style={layerStyle} />
+          <CanvasPicture picture={picture.overlay} style={layerStyle} />
         </>
       ) : null}
     </View>
