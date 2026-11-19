@@ -10,7 +10,7 @@ import { jest } from '@jest/globals';
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { Text } from 'react-native';
 import { IconButton } from '../layout/IconButton';
-import { usePendingAction } from './usePendingAction';
+import { usePendingAction, usePendingKeys } from './usePendingAction';
 import type { PendingAction } from './usePendingAction';
 
 function deferred() {
@@ -92,6 +92,105 @@ describe('usePendingAction', () => {
       await expect(done).rejects.toThrow('offline');
     });
     expect(current().pending).toBe(false);
+  });
+});
+
+describe('usePendingAction, read as the web library returns it', () => {
+  it('destructures as [pending, run], the same two values it names', async () => {
+    const current = mount();
+    const [idle, run] = current();
+    expect(idle).toBe(false);
+    expect(run).toBe(current().run);
+    const work = deferred();
+    let done!: Promise<unknown>;
+    await act(async () => {
+      done = run(() => work.promise);
+    });
+    const [pending] = current();
+    expect(pending).toBe(true);
+    expect(current().pending).toBe(true);
+    await act(async () => {
+      work.resolve();
+      await done;
+    });
+    expect(current()[0]).toBe(false);
+  });
+});
+
+type PendingKeys = ReturnType<typeof usePendingKeys>;
+
+function KeysProbe({ onRender }: { onRender: (keys: PendingKeys) => void }) {
+  onRender(usePendingKeys());
+  return null;
+}
+
+function mountKeys() {
+  let latest!: PendingKeys;
+  render(<KeysProbe onRender={keys => (latest = keys)} />);
+  return () => latest;
+}
+
+describe('usePendingKeys', () => {
+  it('keeps each row waiting on its own work, and lets another row start', async () => {
+    const current = mountKeys();
+    const first = deferred();
+    const second = deferred();
+    await act(async () => {
+      void current()[1]('a', () => first.promise);
+    });
+    expect(current()[0]('a')).toBe(true);
+    expect(current()[0]('b')).toBe(false);
+    // A keyed `usePendingAction` would refuse this; rows do not refuse rows.
+    await act(async () => {
+      void current()[1]('b', () => second.promise);
+    });
+    expect(current()[0]('a')).toBe(true);
+    expect(current()[0]('b')).toBe(true);
+    await act(async () => {
+      first.resolve();
+    });
+    expect(current()[0]('a')).toBe(false);
+    expect(current()[0]('b')).toBe(true);
+    await act(async () => {
+      second.resolve();
+    });
+    expect(current()[0]('b')).toBe(false);
+  });
+
+  it('refuses a second run of the same key while the first is in flight', async () => {
+    const current = mountKeys();
+    const work = deferred();
+    const again = jest.fn(async () => 'again');
+    let refused: unknown = 'not yet';
+    await act(async () => {
+      const run = current()[1];
+      void run('a', () => work.promise);
+      refused = await run('a', again);
+    });
+    expect(again).not.toHaveBeenCalled();
+    expect(refused).toBeUndefined();
+    await act(async () => {
+      work.resolve();
+    });
+    let answer: unknown;
+    await act(async () => {
+      answer = await current()[1]('a', again);
+    });
+    expect(answer).toBe('again');
+  });
+
+  it('stops waiting when the work fails, and lets the failure through', async () => {
+    const current = mountKeys();
+    const work = deferred();
+    let done!: Promise<unknown>;
+    await act(async () => {
+      done = current()[1]('a', () => work.promise);
+    });
+    await act(async () => {
+      work.reject(new Error('offline'));
+      await expect(done).rejects.toThrow('offline');
+    });
+    expect(current()[0]('a')).toBe(false);
   });
 });
 

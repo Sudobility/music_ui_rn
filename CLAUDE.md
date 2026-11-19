@@ -40,6 +40,53 @@ change — consumers take a version bump instead. The web mirror is
   English). Components call `useTranslation()` against the host's `i18next`; the
   package ships no `resources`.
 
+## Mirror of `@sudobility/music_ui`
+
+This library is meant to be the web library drawn again: the same exported
+names taking the same props, the same parts in the same order, the same i18n
+keys, the same calls into the music libs with the same arguments. RN idioms are
+not divergences (sheets for dialogs, `Alert`, Skia for DOM, safe areas, a "more"
+sheet on a compact bar); anything else that differs is a bug or is written down.
+
+- **`src/web-surface-parity.test.ts` holds the public surface to the web's.** It
+  reads `../music_ui/src` (skips if the sibling is absent) and requires every
+  web export to be exported here under the same name or filed, with a reason,
+  under `WEB_ONLY` (CSS/DOM/browser by nature), `DIFFERENT_SHAPE` (in this
+  library, split or named otherwise) or `NOT_YET` (still in an app, or missing
+  natively — the to-do list). A new web export fails it until classified.
+- **Web names over native components.** Where the native component is the same
+  thing under another name it is exported under both: `ConfirmDialog`
+  (`ConfirmSheet` with the web's defaults — destructive unless told, always a
+  confirm), `ChoiceDialog`/`DialogChoice`, `GoToBarDialog`, `InsertBarsDialog`,
+  `ReplaceMusicDialog` (`region` required), `GenerationStatusStrip`
+  (`GenerationOverlay` less `visible`), `ExportScopeDialog`, `PendingButton`,
+  the forty-two named glyphs (`SharpIcon`, … — `icons/notation-icons.tsx`, held
+  to music_types' `NOTATION_ICON_NAMES`), `usePendingKeys`, the `usePlayback*`
+  hooks, `TransportController`, and `theme/color-scheme`. Prefer the web name in
+  new code; the native names stay because the apps use them.
+- **Props added for parity keep the old ones as deprecated aliases** —
+  `ProjectOriginPanel` `hookContext` (was `context`), `EditorToolbar`
+  `inspectorOpen` (was `inspectorVisible`), `ReplaceMusicSheet` `region` +
+  `trackLabel` (was `canSubmit`), `TransportBar` `controller` (beside
+  `transport`). `usePendingAction()` returns the web's `[pending, run]` tuple
+  that also carries `pending` / `pendingKey` / `run` by name.
+- **Wording: ask for the web's key, through `src/i18n/host-key.ts`.** A key the
+  host's locale lacks renders as the key, so a native-only key cannot simply be
+  swapped for the web's. `hostKey(i18n, webKey, nativeKey)` asks for the web key
+  once the host carries it and the native one until then; `hostHasKey` gates a
+  line the web shows and native never had. Adding the string to the app's
+  locales is the whole migration. Do not add new native-only keys for a label
+  the web already has a key for.
+- **Generation requests name their backend.** `GenerateTrackSheet` tags its
+  request with `withGenerationVariant` (as the web caller does) and both it and
+  `ReplaceMusicSheet` take `devicePrefs` to offer the web's Model picker
+  (`features/generation/useGenerationModel.ts`); without it they send
+  `DEFAULT_GENERATION_VARIANT`.
+- **Library tests assert by key and run against an empty bundle**;
+  `src/test/host-strings.ts` (`withHostStrings`) gives the host a string for a
+  test of the other branch, and `src/test/labels.ts` reads accessible names in
+  drawn order for "same controls, same order" tests.
+
 ## Theme
 
 Parity with components-rn and the web comes from `@sudobility/design`'s
@@ -100,14 +147,18 @@ Re-overlay after any `bun install` in the app.
 
 ## Structure
 
-`src/icons` (NotationIcon, InstrumentIcon, BrandLogos, notation-ink) ·
-`src/theme` (theme-mode context) · `src/components` (`controls`, `layout`) ·
-`src/features` — `score` (ScoreView, ScrollingScore, PlaybackCursor + playhead
-seam), `score-editor` (EditorToolbar + action sheets), `transport`, `inspector`,
-`piano-keyboard`, `spatial`, `print`, `generation`, `tracks` (MixerSliders),
-`layout` (compact-bars, inspector-default, useContainerSize helpers) ·
-`src/navigation` (the `useNavigator` contract). Platform variants use RN
-`.macos.tsx` / `.windows.tsx` suffixes. Deep native score-canvas story lives in
+`src/icons` (NotationIcon + the named glyphs, InstrumentIcon, BrandLogos,
+notation-ink) · `src/theme` (theme-mode context; `color-scheme`, the web's
+resolver over `Appearance`) · `src/components` (`controls`, `dialogs`, `layout`)
+· `src/hooks` (`usePlaybackPosition` / `usePlaybackReadout` /
+`usePlayingPitches`; `useSounding` underneath them and `useSoundingTrackIds`) ·
+`src/i18n` (`host-key`) · `src/features` — `score` (ScoreView, ScrollingScore,
+PlaybackCursor + playhead seam), `score-editor` (EditorToolbar + action sheets),
+`transport`, `inspector`, `piano-keyboard`, `spatial`, `print`, `generation`,
+`tracks` (MixerSliders), `layout` (compact-bars, inspector-default,
+useContainerSize helpers) · `src/navigation` (the `useNavigator` contract) ·
+`src/test` (render, host-strings, labels). Platform variants use RN `.macos.tsx`
+/ `.windows.tsx` suffixes. Deep native score-canvas story lives in
 `music_drawing`'s and `music_synth_rn`'s CLAUDE.md, not here.
 
 ## Related

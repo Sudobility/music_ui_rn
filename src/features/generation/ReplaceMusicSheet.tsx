@@ -13,6 +13,14 @@
  * The scopes differ in one way worth knowing: **Replace Notes is the region
  * deliberately not snapped to measures**. `prepareReplacement` handles that —
  * nothing here decides what a region is.
+ *
+ * **What will be overwritten is said first, as on the web.** Handed the
+ * `region` (music_types' `replacementRegion`, the same value the web dialog
+ * takes), the sheet opens on the web's summary line — how many notes, on which
+ * track — and its warning when a non-contiguous selection is about to be
+ * replaced as its bounding span, and Replace is live exactly when there is a
+ * region. `canSubmit` is the older, blunter form of the same gate, kept for a
+ * host that has not been moved over: it says nothing about what is replaced.
  */
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -46,14 +54,37 @@ import type {
   GenerateScoreComplexity,
   ReplaceDraft,
 } from '@sudobility/music_lib';
-import type { ReplaceScope } from '@sudobility/music_types';
-import type { ReplaceSubmission } from '@sudobility/music_types';
+import type {
+  ReplaceScope,
+  ReplaceSubmission,
+  ReplacementRegion,
+} from '@sudobility/music_types';
+import type { TFunction } from 'i18next';
+import { hostKey } from '../../i18n/host-key';
+import { useGenerationModel } from './useGenerationModel';
+import type { GenerationModelPrefsStore } from './useGenerationModel';
+
+export type { ReplaceSubmission } from '@sudobility/music_types';
 
 export type ReplaceMusicSheetProps = {
   open: boolean;
   scope: ReplaceScope;
-  /** False when there is nothing selected to replace; disables submission. */
-  canSubmit: boolean;
+  /**
+   * What will be overwritten — the web dialog's prop. `null` disables
+   * submission; a region is summarised above the form. Omit it (rather than
+   * passing `null`) only when gating on `canSubmit` instead.
+   */
+  region?: ReplacementRegion | null;
+  /** Name of the track being replaced, for the summary line. */
+  trackLabel?: string;
+  /**
+   * False when there is nothing to replace; disables submission. Superseded by
+   * `region`, which carries the same answer and what it is an answer about;
+   * ignored when `region` is given.
+   *
+   * @deprecated Pass `region`.
+   */
+  canSubmit?: boolean;
   onClose: () => void;
   onSubmit: (submission: ReplaceSubmission) => void;
   /**
@@ -63,9 +94,34 @@ export type ReplaceMusicSheetProps = {
   submitting?: boolean;
   /** The bars the region touches times its tracks: what the server bills. */
   estimatedCredits?: number;
+  /**
+   * The device-prefs store (the app's `devicePrefs`). With it the sheet offers
+   * the web dialog's Model picker, seeded from and written back to the
+   * `generationVariant` preference; without it there is no picker and the
+   * request carries the default backend.
+   */
+  devicePrefs?: GenerationModelPrefsStore;
 };
 
 function ignore(): void {}
+
+/**
+ * What is about to be overwritten — the web dialog's `summarise`, word for
+ * word: the counts pluralise through i18next rather than by appending an "s",
+ * which only works in English.
+ */
+function summarise(
+  region: ReplacementRegion,
+  trackLabel: string | undefined,
+  t: TFunction
+): string {
+  const tracks = region.range.trackIds.length;
+  const where =
+    trackLabel && tracks === 1
+      ? t('replace.onTrack', { name: trackLabel })
+      : t('replace.onTracks', { count: tracks });
+  return t('replace.summary', { count: region.noteCount, where });
+}
 
 const TITLE_KEY: Record<ReplaceScope, string> = {
   notes: 'replace.notesTitle',
@@ -76,13 +132,24 @@ const TITLE_KEY: Record<ReplaceScope, string> = {
 export function ReplaceMusicSheet({
   open,
   scope,
+  region,
+  trackLabel,
   canSubmit,
   onClose,
   onSubmit,
   submitting = false,
   estimatedCredits = 0,
+  devicePrefs,
 }: ReplaceMusicSheetProps) {
   const { t, i18n } = useTranslation();
+  const model = useGenerationModel(devicePrefs);
+  // The web's gate (`region !== null`) when the host hands the region over;
+  // the older boolean otherwise.
+  const replaceable =
+    region !== undefined ? region !== null : canSubmit !== false;
+  const instructionLabel = t(
+    hostKey(i18n, 'replace.instruction', 'generate.prompt')
+  );
   /*
     The form, and what it opens with, are music_lib's: the web's defaults —
     nothing preserved, `moderate` complexity, the default backend — so the same
@@ -106,8 +173,12 @@ export function ReplaceMusicSheet({
     if (!open) return;
     // Reset per opening, and per scope: "simplify this passage" carried over
     // from a Replace Notes into a Replace Track is a different request than it
-    // looks like.
-    setDraft(defaultReplaceSubmission());
+    // looks like. The backend is the remembered one, as on the web.
+    setDraft({ ...defaultReplaceSubmission(), variant: model.selected });
+    // `model.selected` is read at open, not tracked: choosing a model in the
+    // open sheet writes the pref, and that must not reset the form under the
+    // reader's hands.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, scope]);
 
   /*
@@ -133,27 +204,41 @@ export function ReplaceMusicSheet({
         },
         {
           label: t('replace.action'),
-          disabled: !canSubmit || submission === null,
+          disabled: !replaceable || submission === null,
           loading: submitting,
           onPress: () => {
-            if (canSubmit && submission) onSubmit(submission);
+            if (replaceable && submission) onSubmit(submission);
           },
         },
       ]}
     >
       <>
+        {region ? (
+          <Text className='text-foreground pb-3 text-base'>
+            {summarise(region, trackLabel, t)}
+            {region.unselectedNoteCount > 0 ? (
+              // Said up front rather than discovered afterwards: a
+              // non-contiguous selection is replaced as its bounding span.
+              <Text className='text-warning text-base'>
+                {` ${t('replace.unselected', {
+                  count: region.unselectedNoteCount,
+                })}`}
+              </Text>
+            ) : null}
+          </Text>
+        ) : null}
         {estimatedCredits > 0 ? (
           <Text className='text-muted-foreground pb-3 text-sm'>
             {t('generate.estimate', { count: estimatedCredits })}
           </Text>
         ) : null}
-        <Field label={t('generate.prompt')}>
+        <Field label={instructionLabel}>
           <Input
             value={draft.instruction}
             onChangeText={instruction => patch({ instruction })}
             multiline
             numberOfLines={3}
-            accessibilityLabel={t('generate.prompt')}
+            accessibilityLabel={instructionLabel}
           />
         </Field>
 
@@ -164,12 +249,18 @@ export function ReplaceMusicSheet({
           use. They were English literals, so a Chinese reader prompted in a
           language the rest of the form was not in.
         */}
-        <Field label={t('replace.presetInstructions')}>
+        {/*
+          The web's control, said the web's way: a button that reads "Presets"
+          (`generate.presets`) and is named "Preset instructions" to assistive
+          technology. It used to say "Preset instructions" twice — once as a
+          field label and again as the control's own text.
+        */}
+        <View className='pb-3'>
           <Select
             value={NO_MARK}
             accessibilityLabel={t('replace.presetInstructions')}
             options={[
-              { value: NO_MARK, label: t('replace.presetInstructions') },
+              { value: NO_MARK, label: t('generate.presets') },
               ...REPLACE_PRESET_KEYS.map(key => ({
                 value: key,
                 label: t(replacePresetLabelKey(key)),
@@ -180,7 +271,7 @@ export function ReplaceMusicSheet({
               if (key) patch({ instruction: t(replacePresetLabelKey(key)) });
             }}
           />
-        </Field>
+        </View>
 
         {/* Translated and sorted, with "none" pinned above — the raw values
             (`electroSwing`) were what this picker used to show. A native
@@ -227,6 +318,23 @@ export function ReplaceMusicSheet({
           />
         </Field>
 
+        {model.choosable ? (
+          <Field label={t('generateScore.model')}>
+            <Select
+              value={draft.variant}
+              accessibilityLabel={t('generateScore.model')}
+              options={model.providers.map(({ value, label }) => ({
+                value,
+                label,
+              }))}
+              onValueChange={variant => {
+                patch({ variant });
+                model.setSelected(variant);
+              }}
+            />
+          </Field>
+        ) : null}
+
         {/*
           All four start off, boundary notes included: each constraint removes
           a dimension the model was asked to work in, and a reader opting in is
@@ -253,7 +361,7 @@ export function ReplaceMusicSheet({
           onChange={value => setConstraint('preserveMelody', value)}
         />
 
-        {!canSubmit ? (
+        {!replaceable ? (
           <Text className='text-muted-foreground pt-2 text-sm'>
             {t('replace.nothingSelected')}
           </Text>
@@ -291,4 +399,22 @@ function Toggle({
       />
     </View>
   );
+}
+
+/**
+ * `@sudobility/music_ui`'s `ReplaceMusicDialog`: the same name over the same
+ * sheet, with the web's gate — `region` is required, and `null` is what
+ * disables Replace. (The web's `store` prop is where it reads the model
+ * preference; here that is `devicePrefs`, the store the preference lives in.)
+ */
+export type ReplaceMusicDialogProps = Omit<
+  ReplaceMusicSheetProps,
+  'canSubmit' | 'region'
+> & {
+  /** What will be overwritten. `null` disables submission. */
+  region: ReplacementRegion | null;
+};
+
+export function ReplaceMusicDialog(props: ReplaceMusicDialogProps) {
+  return <ReplaceMusicSheet {...props} />;
 }

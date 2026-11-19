@@ -30,11 +30,25 @@ export function Field({
   );
 }
 
-/** What a tab shows when nothing is selected. */
-export function EmptyTab({ message }: { message: string }) {
+/**
+ * What a tab shows when nothing is selected.
+ *
+ * `hint` is a quieter second line under the message — how to get something
+ * selected — which the web's Bar tab carries.
+ */
+export function EmptyTab({
+  message,
+  hint,
+}: {
+  message: string;
+  hint?: string;
+}) {
   return (
-    <View className='items-center py-6'>
+    <View className='items-center gap-1 py-6'>
       <Text className='text-muted-foreground text-base'>{message}</Text>
+      {hint ? (
+        <Text className='text-muted-foreground text-sm'>{hint}</Text>
+      ) : null}
     </View>
   );
 }

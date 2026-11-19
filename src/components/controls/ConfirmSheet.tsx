@@ -31,6 +31,8 @@ export type ConfirmSheetProps = {
    * a confirm is the usual case; this is the degenerate one.)
    */
   confirmLabel?: string;
+  /** The Cancel button's label, where "Cancel" is the wrong word. Defaults to `common.cancel`. */
+  cancelLabel?: string;
   /** Paints the confirm button as the dangerous answer. */
   destructive?: boolean;
   /**
@@ -39,6 +41,13 @@ export type ConfirmSheetProps = {
    * stays up so the reader sees the wait on the control they pressed.
    */
   busy?: boolean;
+  /**
+   * What the confirm button is called while `busy` — "Starting…", "Deleting…".
+   * The web draws these words beside its spinner; the native button draws the
+   * spinner alone, so here they are the button's accessible name for the wait
+   * (a spinner with the idle label says "Delete" while nothing can be deleted).
+   */
+  busyLabel?: string;
   onConfirm?: () => void;
   onCancel: () => void;
 };
@@ -51,8 +60,10 @@ export function ConfirmSheet({
   message,
   secondaryMessage,
   confirmLabel,
+  cancelLabel,
   destructive = false,
   busy = false,
+  busyLabel,
   onConfirm,
   onCancel,
 }: ConfirmSheetProps) {
@@ -69,6 +80,7 @@ export function ConfirmSheet({
               ? ('destructive' as const)
               : ('primary' as const),
             loading: busy,
+            ...(busy && busyLabel ? { accessibilityLabel: busyLabel } : {}),
           },
         ]
       : [];
@@ -81,7 +93,7 @@ export function ConfirmSheet({
       saving={busy}
       actions={[
         {
-          label: t('common.cancel'),
+          label: cancelLabel ?? t('common.cancel'),
           onPress: onCancel,
           variant: 'ghost' as const,
           disabled: busy,
@@ -99,5 +111,39 @@ export function ConfirmSheet({
         ) : null}
       </View>
     </FormModal>
+  );
+}
+
+/**
+ * `@sudobility/music_ui`'s `ConfirmDialog`: the same name, props and defaults.
+ *
+ * `ConfirmSheet` is the native contract the apps already call — non-destructive
+ * unless told, and a confirm button only when there is something to confirm.
+ * The web's is the stricter one: there is always a confirm, it is destructive
+ * unless told otherwise ("every current caller confirms a destructive action"),
+ * and an unlabelled one reads `common.confirm`. This is that contract over the
+ * one sheet, so a call written against either library means the same thing.
+ */
+export type ConfirmDialogProps = Omit<
+  ConfirmSheetProps,
+  'onConfirm' | 'secondaryMessage'
+> & {
+  onConfirm: () => void;
+};
+
+export function ConfirmDialog({
+  confirmLabel,
+  destructive = true,
+  ...rest
+}: ConfirmDialogProps) {
+  const { t } = useTranslation();
+  return (
+    <ConfirmSheet
+      {...rest}
+      // Resolved here rather than as a parameter default: a default is
+      // evaluated once, in whatever language was active at the time.
+      confirmLabel={confirmLabel ?? t('common.confirm')}
+      destructive={destructive}
+    />
   );
 }

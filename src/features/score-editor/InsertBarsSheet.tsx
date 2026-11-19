@@ -12,12 +12,7 @@ export type InsertBarsSheetResult = {
 
 function ignore(): void {}
 
-export function InsertBarsSheet({
-  open,
-  onClose,
-  onSubmit,
-  submitting = false,
-}: {
+export type InsertBarsSheetProps = {
   open: boolean;
   onClose: () => void;
   onSubmit: (result: InsertBarsSheetResult) => void;
@@ -26,7 +21,21 @@ export function InsertBarsSheet({
    * sheet stays up, every way out refused, until the server has answered.
    */
   submitting?: boolean;
-}) {
+};
+
+/*
+  The web library's names for the same result and props — identical on both
+  sides; `InsertBarsDialog` is exported at the foot of this file.
+*/
+export type InsertBarsDialogResult = InsertBarsSheetResult;
+export type InsertBarsDialogProps = InsertBarsSheetProps;
+
+export function InsertBarsSheet({
+  open,
+  onClose,
+  onSubmit,
+  submitting = false,
+}: InsertBarsSheetProps) {
   const { t } = useTranslation();
   const [count, setCount] = useState('4');
   const [position, setPosition] = useState<InsertBarsPosition>('after');
@@ -122,3 +131,6 @@ export function InsertBarsSheet({
     </FormModal>
   );
 }
+
+/** The web library's name for `InsertBarsSheet`. */
+export const InsertBarsDialog = InsertBarsSheet;

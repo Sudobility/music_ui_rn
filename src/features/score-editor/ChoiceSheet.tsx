@@ -37,6 +37,24 @@ export type Choice<T extends string> = {
   disabled?: boolean;
 };
 
+export type ChoiceSheetProps<T extends string> = {
+  open: boolean;
+  title: string;
+  /** The situation, in one sentence. Says what is true, not what to do. */
+  message: string;
+  choices: readonly Choice<T>[];
+  onChoose: (value: T) => void;
+  onCancel: () => void;
+};
+
+/*
+  `@sudobility/music_ui` calls these `DialogChoice`, `ChoiceDialogProps` and
+  `ChoiceDialog`. Same props, same question; the names are exported too so a
+  call written against the web library reads the same here.
+*/
+export type DialogChoice<T extends string> = Choice<T>;
+export type ChoiceDialogProps<T extends string> = ChoiceSheetProps<T>;
+
 export function ChoiceSheet<T extends string>({
   open,
   title,
@@ -44,14 +62,7 @@ export function ChoiceSheet<T extends string>({
   choices,
   onChoose,
   onCancel,
-}: {
-  open: boolean;
-  title: string;
-  message: string;
-  choices: readonly Choice<T>[];
-  onChoose: (value: T) => void;
-  onCancel: () => void;
-}) {
+}: ChoiceSheetProps<T>) {
   const { t } = useTranslation();
   return (
     <FormModal
@@ -99,3 +110,6 @@ export function ChoiceSheet<T extends string>({
     </FormModal>
   );
 }
+
+/** The web library's name for `ChoiceSheet`. */
+export const ChoiceDialog = ChoiceSheet;

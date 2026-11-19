@@ -23,6 +23,7 @@ import { useStore } from 'zustand';
 import { useTranslation } from 'react-i18next';
 import { defaultInspectorTab } from '@sudobility/music_editing';
 import { SegmentedTabs } from '../../components/controls';
+import { hostKey } from '../../i18n/host-key';
 import { TrackTab } from './TrackTab';
 import { NoteTab } from './NoteTab';
 import { MeasureTab } from './MeasureTab';
@@ -64,7 +65,7 @@ export function InspectorPanel({
   generation,
   origin,
 }: InspectorPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const selection = useStore(document.store, s => s.selection);
   const [tab, setTab] = useState<InspectorTab>(() =>
     defaultInspectorTab(selection)
@@ -82,9 +83,17 @@ export function InspectorPanel({
   }, [selection.eventIds, selection.measureIds, selection.trackIds]);
 
   return (
-    <View className='flex-1' accessibilityLabel={t('editor.inspector')}>
+    // The web names the panel and its tab strip apart ("Inspector panel",
+    // "Inspector tabs"); both were "Inspector" here, so a screen reader met
+    // the same name twice in a row.
+    <View
+      className='flex-1'
+      accessibilityLabel={t(
+        hostKey(i18n, 'editor.inspectorPanel', 'editor.inspector')
+      )}
+    >
       <SegmentedTabs
-        label={t('editor.inspector')}
+        label={t(hostKey(i18n, 'editor.inspectorTabs', 'editor.inspector'))}
         options={INSPECTOR_TABS.map(value => ({
           value,
           label: t(INSPECTOR_TAB_LABEL_KEY[value]),

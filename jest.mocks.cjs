@@ -85,5 +85,28 @@ jest.mock('nativewind', () => ({
 // environment does not provide. The tests exercise our components' behavior.
 jest.mock('react-native-svg', () => {
   const { View } = require('react-native');
-  return { __esModule: true, default: View, Svg: View, Path: View };
+  // Every element the notation glyphs, the instrument art and the heroicons
+  // draw with: a glyph made of a circle or a rect rendered `undefined` as a
+  // component before, which is a crash rather than a missing picture.
+  const elements = [
+    'Svg',
+    'Path',
+    'Circle',
+    'Ellipse',
+    'G',
+    'Rect',
+    'Text',
+    'Line',
+    'Polygon',
+    'Polyline',
+    'Defs',
+    'ClipPath',
+    'LinearGradient',
+    'Stop',
+  ];
+  return {
+    __esModule: true,
+    default: View,
+    ...Object.fromEntries(elements.map(name => [name, View])),
+  };
 });

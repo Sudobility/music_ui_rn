@@ -28,6 +28,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { libraryMessage } from '@sudobility/music_lib';
 import type { DocumentStore } from '@sudobility/music_lib';
 import { getMusicPlayerIfInitialized } from '@sudobility/music_player/core';
+import { PLAYER_POSITION } from './usePositionReadout';
 import type { PositionSource } from './usePositionReadout';
 import { bindPlayer } from '@sudobility/music_lib';
 import type { PlayerBinding } from '@sudobility/music_lib';
@@ -105,8 +106,11 @@ export function usePlayerBinding(store: TransportStoreApi): TransportBinding {
       setTempoMultiplier: m => live.current?.setTempoMultiplier(m),
       setMetronome: enabled => live.current?.setMetronome(enabled),
       setMasterVolume: volume => live.current?.setMasterVolume(volume),
-      onPosition: fn =>
-        getMusicPlayerIfInitialized()?.onPosition(fn) ?? (() => {}),
+      onPosition: PLAYER_POSITION.onPosition,
+      // Where the playhead is now, for a readout that mounts between reports.
+      get positionTick() {
+        return PLAYER_POSITION.positionTick;
+      },
     }),
     // A new store is a new binding; the facade follows it so a memoised child
     // holding the old one cannot drive a document that is no longer in front.

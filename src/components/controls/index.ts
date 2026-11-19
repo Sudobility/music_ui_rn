@@ -3,6 +3,7 @@ export * from './ControlsSheet';
 export * from './FieldRow';
 export * from './LevelSlider';
 export * from './OverflowMenu';
+export * from './PendingButton';
 export * from './PressableCard';
 export * from './SegmentedTabs';
 export * from './SelectableText';

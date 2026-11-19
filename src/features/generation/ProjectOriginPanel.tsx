@@ -39,11 +39,19 @@ export type ProjectOriginProps = {
   projectId: string;
   /**
    * What the hooks need to ask the server for a job or a source project's
-   * name. Handed in by the screen rather than read from the auth layer here,
-   * so the property sheet stays renderable without one — null means the rows
-   * that would ask the server are simply absent rather than failing.
+   * name — the web panel's prop, under the web's name. Handed in by the screen
+   * rather than read from the auth layer here, so the property sheet stays
+   * renderable without one: null (or absent) means the rows that would ask the
+   * server are simply absent rather than failing.
    */
-  context: MusicHookContext | null;
+  hookContext?: MusicHookContext | null;
+  /**
+   * The same thing under this library's earlier name. `hookContext` wins when
+   * both are given.
+   *
+   * @deprecated Pass `hookContext`.
+   */
+  context?: MusicHookContext | null;
 };
 
 type Row = readonly [label: string, value: string];
@@ -201,9 +209,11 @@ function DuplicatedOrigin({
 export function ProjectOriginPanel({
   origin,
   projectId,
-  context,
+  hookContext,
+  context: legacyContext,
 }: ProjectOriginProps) {
   const { t } = useTranslation();
+  const context = hookContext ?? legacyContext ?? null;
   return (
     <View className='gap-2' accessibilityLabel={t('projectOrigin.heading')}>
       <Text className='text-foreground text-sm font-semibold'>

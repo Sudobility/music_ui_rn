@@ -14,9 +14,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { useStore } from 'zustand';
 import { useTranslation } from 'react-i18next';
-import { Input } from '@sudobility/components-rn';
+import { Input, Text } from '@sudobility/components-rn';
 import { selectEditLocked } from '@sudobility/music_editing';
-import { Field } from './Field';
+import { EmptyTab, Field } from './Field';
 import type { MusicDocument } from '../../types';
 import { GenerationChoices } from '../generation';
 import type { GenerationChoicesProps } from '../generation';
@@ -40,6 +40,7 @@ export function ScoreTab({
 }) {
   const { t } = useTranslation();
   const store = document.store;
+  const hasScore = useStore(store, s => s.score !== null);
   const metadata = useStore(store, s => s.score?.metadata);
   // Content, so locked while the transport plays — the web's rule.
   const locked = useStore(store, selectEditLocked);
@@ -69,12 +70,18 @@ export function ScoreTab({
       setComposer(metadata?.composer ?? '');
   }, [store, composer, metadata?.composer]);
 
+  // No score, no metadata to edit — the web tab's first state. Two empty
+  // fields that could be typed into and committed nowhere stood here before.
+  if (!hasScore) return <EmptyTab message={t('inspector.noScore')} />;
+
   return (
     <View className='gap-3'>
-      <Field
-        label={t('inspector.scoreTitle')}
-        hint={t('inspector.scoreTitleHint')}
-      >
+      {/* The web tab's heading: which of the four tabs this is, in the panel. */}
+      <Text className='text-foreground text-sm font-semibold'>
+        {t('inspector.score')}
+      </Text>
+
+      <Field label={t('inspector.scoreTitle')}>
         <Input
           value={title}
           onChangeText={setTitle}
@@ -92,6 +99,14 @@ export function ScoreTab({
           accessibilityLabel={t('inspector.composer')}
         />
       </Field>
+      {/*
+        Under both fields, where the web puts it: the sentence is about the
+        score's title *and* the name the project is stored under, so it reads
+        as a note on the pair rather than as the Title field's own hint.
+      */}
+      <Text className='text-muted-foreground text-sm'>
+        {t('inspector.scoreTitleHint')}
+      </Text>
       {origin ? <ProjectOriginPanel {...origin} /> : null}
       {generation ? <GenerationChoices {...generation} /> : null}
     </View>

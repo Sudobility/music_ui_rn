@@ -4,3 +4,4 @@ export * from './GenerationOverlay';
 export * from './ProjectOriginPanel';
 export * from './ReplaceMusicSheet';
 export * from './ScoreSetupFields';
+export type { GenerationModelPrefsStore } from './useGenerationModel';

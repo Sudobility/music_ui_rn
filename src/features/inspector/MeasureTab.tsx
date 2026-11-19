@@ -75,6 +75,7 @@ import type {
   ReplaceScope,
   Score,
 } from '@sudobility/music_types';
+import { hostHasKey } from '../../i18n/host-key';
 import { DraftInput, NumberDraftInput } from './DraftInput';
 import {
   FieldSlot,
@@ -99,7 +100,7 @@ export function MeasureTab({
   document: MusicDocument;
   onReplace?: (scope: ReplaceScope) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const store = document.store;
   const measures = useStore(store, selectSelectedMeasures);
   const score = useStore(store, s => s.score);
@@ -110,8 +111,24 @@ export function MeasureTab({
   const locked = useStore(store, selectEditLocked);
 
   const first = measures[0];
-  if (!score || !first)
-    return <EmptyTab message={t('inspector.selectMeasure')} />;
+  // Two different nothings, as on the web: no score at all, and a score with
+  // no bar selected. They used to share the second sentence.
+  if (!score) return <EmptyTab message={t('inspector.noScore')} />;
+  if (!first)
+    return (
+      <EmptyTab
+        message={t('inspector.selectMeasure')}
+        /*
+          The web's second line says how a bar is selected. It is the host's to
+          word — "click" there, a tap here — so it is shown where the host
+          carries the key and left out, rather than printed as a key, where it
+          does not yet.
+        */
+        {...(hostHasKey(i18n, 'inspector.selectMeasureHint')
+          ? { hint: t('inspector.selectMeasureHint') }
+          : {})}
+      />
+    );
 
   const measureIds = measures.map(m => m.id);
   const timeSig = commonValue(measures.map(m => m.timeSignature));

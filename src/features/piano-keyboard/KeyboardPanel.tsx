@@ -53,11 +53,8 @@ import type { MusicDocument } from '../../types';
 import { PianoKeyboard } from './PianoKeyboard';
 import { useContainerSize } from '../layout';
 
-import {
-  litKeys,
-  playingPitchesForTrack,
-  samePitchSet,
-} from '@sudobility/music_drawing';
+import { litKeys } from '@sudobility/music_drawing';
+import { usePlayingPitches } from '../../hooks/usePlayback';
 import type { KeyGroup } from '@sudobility/music_types';
 
 /**
@@ -94,10 +91,24 @@ export function KeyboardPanel({
   height = KEYBOARD_MAX_HEIGHT,
 }: KeyboardPanelProps) {
   const { size, onLayout, measured } = useContainerSize();
-  const [sounding, setSounding] = useState<ReadonlySet<number>>(NO_PITCHES);
-  /** What `sounding` holds, readable from the player's callback without a render. */
-  const shownSounding = useRef(sounding);
   const activeTrackId = useStore(document.store, selectActiveTrackId);
+  /*
+    The active track's sounding notes, not every track's — the web keyboard's
+    `usePlayingPitches`, the same hook.
+
+    The keyboard shows one track, so lighting whatever sounded anywhere made
+    the keys flicker with parts the reader cannot see; same rule and same
+    reasoning as the notation's playing colour, and `playingPitchesForTrack`
+    is where it lives so the two agree. The set keeps its identity until one of
+    this track's keys moves, so a note on another part renders nothing.
+
+    A hook rather than the subscription this panel used to hold itself, because
+    that one answered only at a note boundary: pointing the keyboard at another
+    track kept the *previous* track's keys lit, relabelled as the new one's,
+    until that track's next note — and a keyboard opened mid-chord showed none.
+    The hook re-reads what is sounding now whenever the track changes.
+  */
+  const sounding = usePlayingPitches(activeTrackId);
   const transportState = useStore(document.store, s => s.state);
   const pitchDisplay = useStore(document.store, s => s.pitchDisplay);
   const resolved = useThemeMode();
@@ -127,29 +138,6 @@ export function KeyboardPanel({
     },
     []
   );
-
-  useEffect(() => {
-    const player = getMusicPlayerIfInitialized();
-    if (!player) return;
-    /*
-      The active track's sounding notes, not every track's.
-
-      This lit whatever was sounding anywhere, so on a multi-track score the
-      keys flickered with parts the reader cannot see — the keyboard shows one
-      track. Same rule and same reasoning as the notation's playing colour, and
-      `playingPitchesForTrack` is where it lives so the two agree.
-    */
-    return player.onSounding(notes => {
-      const next = playingPitchesForTrack(notes, activeTrackId);
-      // Nothing to do when no key of this track moved: the player reports
-      // every track's notes, and a new set each time re-rendered all the keys
-      // for notes this keyboard does not show. Compared before `setSounding`
-      // rather than inside an updater, which React still renders to evaluate.
-      if (samePitchSet(shownSounding.current, next)) return;
-      shownSounding.current = next;
-      setSounding(next);
-    });
-  }, [activeTrackId]);
 
   /*
     What is drawn pressed is music_drawing's `litKeys`, the web keyboard's rule:

@@ -65,13 +65,16 @@ import {
   commitOpeningTempoText,
   openingTempoBpm,
 } from '@sudobility/music_editing';
-import type { Score } from '@sudobility/music_types';
+import type { PlaybackBus, Score } from '@sudobility/music_types';
 import { NotationIcon } from '../../icons';
 import { useNotationInk } from '../../icons';
 import { LevelSlider } from '../../components/controls';
 import { ToolbarSelect } from '../../components/controls';
 import { SynthLoadIndicator } from './SynthLoadIndicator';
-import { AudioOutputSelect } from './AudioOutputSelect';
+import {
+  AUDIO_OUTPUT_SELECTABLE,
+  AudioOutputSelect,
+} from './AudioOutputSelect';
 import { getMusicPlayerIfInitialized } from '@sudobility/music_player/core';
 import { usePlaybackReadiness } from '@sudobility/music_player/react';
 import { IconButton } from '../../components/layout/IconButton';
@@ -81,9 +84,45 @@ import type { TransportBinding, TransportStoreApi } from './usePlayerBinding';
 
 const ICON_SIZE = 18;
 
-export type TransportBarProps = {
+/**
+ * The master fader's step — the web bar's `step={0.01}`. Stated because the
+ * native slider's default is continuous: without it the store's `masterVolume`
+ * held whatever fraction the finger stopped on (0.4273…), where the web's is a
+ * whole percent.
+ */
+const VOLUME_STEP = 0.01;
+
+/**
+ * What the bar's buttons move, as `@sudobility/music_ui` types it: the eight
+ * operations the bar calls, plus the `PlaybackBus` its readouts and scrubber
+ * follow. A host with its own `PlayerBinding` (music_lib's `bindPlayer`) and
+ * the raw player's `bus` satisfies it structurally — the same sentence the
+ * web's own definition ends on.
+ */
+export type TransportController = {
+  togglePlay: () => void | Promise<void>;
+  pause: () => void;
+  goToStart: () => void;
+  toggleLoop: () => void;
+  setMetronome: (enabled: boolean) => void;
+  seek: (tick: number) => void;
+  setTempoMultiplier: (multiplier: number) => void;
+  setMasterVolume: (volume: number) => void;
+  bus: PlaybackBus;
+};
+
+/**
+ * How the bar is driven: the native binding (`usePlayerBinding`), or the web
+ * bar's `controller`. Exactly one. `transport` is what the apps pass today and
+ * carries its own position subscription; `controller` is the web's prop, under
+ * the web's name and type, whose positions come from its `bus`.
+ */
+type TransportDrive =
+  | { transport: TransportBinding; controller?: undefined }
+  | { controller: TransportController; transport?: undefined };
+
+export type TransportBarProps = TransportDrive & {
   score: Score;
-  transport: TransportBinding;
   /** The document's store: settings are read from it, the tempo written to it. */
   store: TransportStoreApi;
   /**
@@ -127,7 +166,8 @@ export type TransportBarProps = {
 
 export function TransportBar({
   score,
-  transport,
+  transport: binding,
+  controller,
   store,
   keyboardCollapsed,
   onToggleKeyboard,
@@ -139,6 +179,25 @@ export function TransportBar({
 }: TransportBarProps) {
   const { t } = useTranslation();
   const ink = useNotationInk();
+  /*
+    One shape for the rest of the bar, whichever way it was driven: the
+    operations, and a position source. A binding is both already; a controller's
+    positions are its bus's, which is a `PositionSource` as it stands
+    (`onPosition` and the `positionTick` snapshot).
+  */
+  const transport = useMemo<
+    Omit<TransportController, 'bus'> & PositionSource
+  >(() => {
+    if (binding) return binding;
+    const { bus, ...operations } = controller;
+    return {
+      ...operations,
+      onPosition: fn => bus.onPosition(fn),
+      get positionTick() {
+        return bus.positionTick;
+      },
+    };
+  }, [binding, controller]);
   // The bar collapses the secondary controls into a "more" sheet in a compact
   // window — always on a phone, and on a tablet/desktop whose window is narrow
   // (an iPad split view, a small Mac window) — and shows them all inline when
@@ -315,6 +374,7 @@ export function TransportBar({
         className='flex-1'
         label={t('transport.masterVolume')}
         value={volumeDraft}
+        step={VOLUME_STEP}
         onChange={onVolume}
       />
     </View>
@@ -324,6 +384,7 @@ export function TransportBar({
       <LevelSlider
         label={t('transport.masterVolume')}
         value={volumeDraft}
+        step={VOLUME_STEP}
         onChange={onVolume}
       />
     </View>
@@ -388,11 +449,17 @@ export function TransportBar({
       },
       { key: 'tempo', label: t('transport.tempoBpm'), control: tempoControl },
       { key: 'speed', label: t('transport.speed'), control: speedSelect },
-      {
-        key: 'output',
-        label: t('transport.audioOutput'),
-        control: outputSelect,
-      },
+      // Only where there is an output to choose: the control draws nothing
+      // on a phone, and a labelled row with nothing in it is worse than none.
+      ...(AUDIO_OUTPUT_SELECTABLE
+        ? [
+            {
+              key: 'output',
+              label: t('transport.audioOutput'),
+              control: outputSelect,
+            },
+          ]
+        : []),
       {
         key: 'volume',
         label: t('transport.masterVolume'),
@@ -584,7 +651,9 @@ export const PositionScrubber = memo(function PositionScrubber({
   transport: PositionSource & Pick<TransportBinding, 'seek'>;
 }) {
   const { t } = useTranslation();
-  const [tick, setTick] = useState(0);
+  // From where the playhead already is, not from 0: a scrubber mounted while
+  // paused mid-score gets no report to correct it until something plays.
+  const [tick, setTick] = useState(() => transport.positionTick ?? 0);
   const [dragging, setDragging] = useState<number | null>(null);
   // Per frame, not per report — and never from inside the report; see
   // `useOnPositionFrame` for the render-phase update this used to trip.
@@ -632,6 +701,7 @@ export const MasterVolume = memo(function MasterVolume({
         className='flex-1'
         label={t('transport.masterVolume')}
         value={volumeDraft}
+        step={VOLUME_STEP}
         onChange={next => {
           setVolumeDraft(next);
           transport.setMasterVolume(next);

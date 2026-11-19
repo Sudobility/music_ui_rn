@@ -168,7 +168,14 @@ export function TitleBarDocumentActions({
   const saveState = useStore(document.store, s => s.saveState);
   const canUndo = useStore(document.store, s => s.canUndo);
   const canRedo = useStore(document.store, s => s.canRedo);
-  const playing = useStore(document.store, s => s.state) === 'playing';
+  // Undo and redo are refused while the transport plays *and* while a job
+  // owns the score (`editLocked`) — the store's own two conditions. The web
+  // bar disables them for the second; this bar knew only the first, so during
+  // a generation they looked live and did nothing.
+  const locked = useStore(
+    document.store,
+    s => s.state === 'playing' || s.editLocked
+  );
   const ink = useNotationInk();
   const color = tint ?? ink.onPrimary;
 
@@ -180,7 +187,10 @@ export function TitleBarDocumentActions({
       {/* Any write in flight — this button's or the autosave's — is the wait
           this button would start, so it spins for both. */}
       <IconButton
-        label={t('editor.saveNow')}
+        // Named "Save" and hinted "Save now" — the web button's aria-label
+        // and tooltip. It was named by the tooltip's words.
+        label={t('editor.save')}
+        hint={t('editor.saveNow')}
         onPress={onSave}
         loading={saveState === 'saving'}
         spinnerColor={color}
@@ -190,14 +200,14 @@ export function TitleBarDocumentActions({
       <IconButton
         label={t('editor.undo')}
         onPress={undo}
-        disabled={!canUndo || playing}
+        disabled={!canUndo || locked}
       >
         <ArrowUturnLeftIcon size={ICON_SIZE} color={color} />
       </IconButton>
       <IconButton
         label={t('editor.redo')}
         onPress={redo}
-        disabled={!canRedo || playing}
+        disabled={!canRedo || locked}
       >
         <ArrowUturnRightIcon size={ICON_SIZE} color={color} />
       </IconButton>
@@ -308,7 +318,14 @@ export function TitleBarActions({
   const saveState = useStore(document.store, s => s.saveState);
   const canUndo = useStore(document.store, s => s.canUndo);
   const canRedo = useStore(document.store, s => s.canRedo);
-  const playing = useStore(document.store, s => s.state) === 'playing';
+  // Undo and redo are refused while the transport plays *and* while a job
+  // owns the score (`editLocked`) — the store's own two conditions. The web
+  // bar disables them for the second; this bar knew only the first, so during
+  // a generation they looked live and did nothing.
+  const locked = useStore(
+    document.store,
+    s => s.state === 'playing' || s.editLocked
+  );
   const undo = useCallback(() => document.store.getState().undo(), [document]);
   const redo = useCallback(() => document.store.getState().redo(), [document]);
 
@@ -378,7 +395,10 @@ export function TitleBarActions({
   return (
     <View className='flex-row items-center gap-1'>
       <IconButton
-        label={t('editor.saveNow')}
+        // Named "Save" and hinted "Save now" — the web button's aria-label
+        // and tooltip. It was named by the tooltip's words.
+        label={t('editor.save')}
+        hint={t('editor.saveNow')}
         onPress={onSave}
         loading={saveState === 'saving'}
         spinnerColor={color}
@@ -388,14 +408,14 @@ export function TitleBarActions({
       <IconButton
         label={t('editor.undo')}
         onPress={undo}
-        disabled={!canUndo || playing}
+        disabled={!canUndo || locked}
       >
         <ArrowUturnLeftIcon size={ICON_SIZE} color={color} />
       </IconButton>
       <IconButton
         label={t('editor.redo')}
         onPress={redo}
-        disabled={!canRedo || playing}
+        disabled={!canRedo || locked}
       >
         <ArrowUturnRightIcon size={ICON_SIZE} color={color} />
       </IconButton>

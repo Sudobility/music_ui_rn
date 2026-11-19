@@ -46,6 +46,7 @@ import {
 } from '@sudobility/music_types';
 import type { Clef } from '@sudobility/music_types';
 import { ConfirmSheet } from '../../components/controls';
+import { hostKey } from '../../i18n/host-key';
 import { InstrumentIcon } from '../../icons';
 import { useNotationInk } from '../../icons';
 import { Field, EmptyTab } from './Field';
@@ -63,7 +64,7 @@ export function TrackTab({
   document: MusicDocument;
   onReplace?: (scope: ReplaceScope) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const ink = useNotationInk();
   const store = document.store;
   const track = useStore(store, selectSelectedTrack);
@@ -171,6 +172,9 @@ export function TrackTab({
       setDraftName(track.name);
   }, [store, draftName, track]);
 
+  // Two different nothings, as on the web: no score at all, and a score with
+  // no track selected. They used to share the second sentence.
+  if (!score) return <EmptyTab message={t('inspector.noScore')} />;
   if (!track) return <EmptyTab message={t('inspector.selectTrack')} />;
 
   /*
@@ -185,6 +189,11 @@ export function TrackTab({
 
   return (
     <View className='gap-3'>
+      {/* The web tab's heading: which of the four tabs this is, in the panel. */}
+      <Text className='text-foreground text-sm font-semibold'>
+        {t('inspector.track')}
+      </Text>
+
       <Field label={t('inspector.name')}>
         <Input
           value={draftName}
@@ -244,10 +253,17 @@ export function TrackTab({
         re-resolves the program, since a kit and an instrument are different
         things at the same number.
       */}
-      <Field label={t('inspector.clef')}>
+      {/*
+        The web's words for it: "Clef" over the control (`importMidi.colClef`,
+        the one key both apps use for that word) and "Track clef" as its
+        accessible name, which is what tells it from the Bar tab's clef.
+      */}
+      <Field label={t('importMidi.colClef')}>
         <Select
           value={track.clef}
-          accessibilityLabel={t('inspector.clef')}
+          accessibilityLabel={t(
+            hostKey(i18n, 'inspector.trackClef', 'inspector.clef')
+          )}
           disabled={locked}
           options={CLEF_OPTIONS.map(option => ({
             value: option.value,
@@ -317,6 +333,16 @@ export function TrackTab({
 
       <VisibleTracksField document={document} />
 
+      {/* Above Delete, as on the web: rewrite the part, then remove it. */}
+      {onReplace ? (
+        <ReplaceButton
+          document={document}
+          scope='track'
+          label={t('inspector.replaceTrack')}
+          onReplace={onReplace}
+        />
+      ) : null}
+
       {/*
         Deleting the part. `canDeleteTrack` is the store's own rule, asked
         rather than restated here — a score with no tracks is not a score, and
@@ -342,15 +368,6 @@ export function TrackTab({
         }}
         onCancel={() => setConfirmDelete(false)}
       />
-
-      {onReplace ? (
-        <ReplaceButton
-          document={document}
-          scope='track'
-          label={t('inspector.replaceTrack')}
-          onReplace={onReplace}
-        />
-      ) : null}
     </View>
   );
 }

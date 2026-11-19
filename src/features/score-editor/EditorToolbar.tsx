@@ -1,15 +1,22 @@
 /**
  * The editing bar, mirroring the web app's — control for control.
  *
- * Same groups in the same order, divided the same way: tracks, then note value
- * with its dotted/triplet modifiers, then accidentals, then articulation and
- * ornament with the tie beside them, then the marks and modes that act on a
- * selection, then the clipboard, then quantize, then voice, then the rare
- * actions behind a menu. Zoom, layout, pitch display and the inspector toggle
- * sit **outside the scroller**, pinned to the right, for the reason the web
- * pins them: they change how you look at the score rather than the score
- * itself, and they were the first things to disappear behind the horizontal
- * scroll.
+ * Same controls in the same order, divided the same way — music_types'
+ * `TOOLBAR_CONTROLS` order: tracks (with voice recording beside Add Track),
+ * then note value with its dotted/triplet modifiers, then accidentals, then
+ * articulation and ornament with the tie beside them, then the edit modes and
+ * everything that writes or marks a note (insert note, slur, hairpins,
+ * arpeggio, beams, fermata, note input, insert rest), then quantize, then
+ * voice, then the rare actions behind a menu. Zoom, layout, track info, pitch
+ * display and the inspector toggle follow, set apart because they change how
+ * you look at the score rather than the score itself.
+ *
+ * That is the wide bar. A compact window keeps the note-entry essentials on the
+ * bar and gathers the rest into a "more tools" sheet, a row per group — the
+ * same controls (each is defined once below), arranged for a phone.
+ *
+ * Not here yet, and on the web bar: the line-drawing toggle (draw a melody
+ * left to right), which needs a score gesture this library does not have.
  *
  * **Several choices are a picker, not a row of chips**, and that is the single
  * biggest difference from what this file used to be. Six note values, five
@@ -132,6 +139,7 @@ import type {
 } from '@sudobility/music_types';
 import type { LayoutMode } from '@sudobility/music_types';
 import { usePendingAction } from '../../components/controls';
+import { hostKey } from '../../i18n/host-key';
 
 const ICON_SIZE = 18;
 
@@ -145,15 +153,38 @@ const ICON_SIZE = 18;
   work — the multi-codepoint musical characters draw as `?`.
 */
 
+/**
+ * The quantize grids' names — the web bar's table, key for key. A `Record`, so
+ * a fifth grid fails to compile here.
+ */
+const QUANTIZE_GRID_LABEL_KEY: Record<QuantizeGrid, string> = {
+  quarter: 'importMidi.gridQuarter',
+  eighth: 'importMidi.gridEighth',
+  sixteenth: 'importMidi.gridSixteenth',
+  thirtysecond: 'importMidi.gridThirtySecond',
+};
+
 export type EditorToolbarProps = {
   document: MusicDocument;
   layoutMode: LayoutMode;
   onLayoutModeChange: (mode: LayoutMode) => void;
-  /** Starts lyric entry on the active track. */
-  onEnterLyrics: () => void;
-  /** Shows or hides the property sheet. */
-  onToggleInspector: () => void;
-  inspectorVisible: boolean;
+  /** Starts lyric entry on the active track. Omitted in isolation tests. */
+  onEnterLyrics?: () => void;
+  /**
+   * Shows or hides the property sheet. Omitted when the bar is rendered
+   * without a surrounding layout, in which case no toggle shows — the web
+   * bar's rule.
+   */
+  onToggleInspector?: () => void;
+  /** Whether the property sheet is showing — the web bar's prop. */
+  inspectorOpen?: boolean;
+  /**
+   * The same thing under this library's earlier name. `inspectorOpen` wins
+   * when both are given.
+   *
+   * @deprecated Pass `inspectorOpen`.
+   */
+  inspectorVisible?: boolean;
   /**
    * Asks the server for one more track.
    *
@@ -191,16 +222,18 @@ export function EditorToolbar({
   onLayoutModeChange,
   onEnterLyrics,
   onToggleInspector,
-  inspectorVisible,
+  inspectorOpen,
+  inspectorVisible: inspectorVisibleLegacy,
   onGenerateTrack,
   onGenerateInsertedBars,
   onVoiceTranscriptionJob,
   devicePrefs,
   renderVoiceRecord,
 }: EditorToolbarProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const ink = useNotationInk();
   const store = document.store;
+  const inspectorVisible = inspectorOpen ?? inspectorVisibleLegacy ?? false;
   const score = useStore(store, s => s.score);
   const snapGrid = useStore(store, s => s.snapGrid);
   const effectiveEditMode = useStore(store, selectEffectiveEditMode);
@@ -299,9 +332,15 @@ export function EditorToolbar({
     label: t(option.labelKey),
   }));
 
+  /*
+    Each grid by the web menu's own words ("Sixteenth", the `importMidi.grid*`
+    keys both apps carry), after the short form the trigger shows, so the row
+    and the glyph it sets can be told to be the same thing. The words were
+    `duration.*` ("16th") — a different key for the same entry.
+  */
   const quantizeOptions: ToolbarOption[] = QUANTIZE_GRIDS.map(grid => ({
     value: grid,
-    label: `${QUANTIZE_GRID_SHORT[grid]} — ${t(`duration.${grid}`)}`,
+    label: `${QUANTIZE_GRID_SHORT[grid]} — ${t(QUANTIZE_GRID_LABEL_KEY[grid])}`,
   }));
 
   /*
@@ -326,7 +365,7 @@ export function EditorToolbar({
   const handleMoreAction = (value: string): void => {
     runMoreAction(store, value as EditorMoreAction, {
       goToBar: () => setGoToBarOpen(true),
-      enterLyrics: onEnterLyrics,
+      ...(onEnterLyrics ? { enterLyrics: onEnterLyrics } : {}),
       addMeasure: () => setInsertBarsOpen(true),
     });
   };
@@ -368,7 +407,18 @@ export function EditorToolbar({
   const noteDurationControl = (
     <ToolbarSelect
       label={t('editor.noteDuration')}
-      hint={t('editor.noteDurationHint')}
+      // A selection of different lengths gets the web's own hint for it —
+      // "pick one to make them all match" — where the host carries the string;
+      // the "…" on the trigger said that something was mixed, not what to do.
+      hint={t(
+        durationShown.kind === 'mixed'
+          ? hostKey(
+              i18n,
+              'editor.mixedDurationsHint',
+              'editor.noteDurationHint'
+            )
+          : 'editor.noteDurationHint'
+      )}
       options={durationOptions}
       {...(durationShown.kind === 'mixed' ? {} : { value: durationShown.base })}
       disabled={!available.noteDuration}
@@ -449,68 +499,100 @@ export function EditorToolbar({
       <NotationIcon name='OrnamentIcon' color={ink.foreground} />
     </ToolbarSelect>
   );
+  /*
+    The marks, one chip each, in music_types' `TOOLBAR_CONTROLS` order — which
+    is the web bar's. Defined singly because the two arrangements place them
+    differently: the wide bar sets them out in that one sequence, as the web
+    does (they are peers there, under no group name of their own), and the
+    compact sheet gathers them into rows.
+  */
+  const tieChip = (
+    <GlyphChip
+      icon='TieIcon'
+      label={t('editor.toggleTie')}
+      hint={t('editor.toggleTie')}
+      disabled={!available.tie}
+      onPress={() => toggleTie(store, 'tieStart')}
+    />
+  );
+  const slurChip = (
+    <GlyphChip
+      icon='SlurIcon'
+      label={t('editor.slur')}
+      hint={t('editor.slurHint')}
+      disabled={!available.slur}
+      onPress={() => toggleSlur(store)}
+    />
+  );
+  const crescendoChip = (
+    <GlyphChip
+      icon='CrescendoIcon'
+      label={t('editor.crescendo')}
+      hint={t('editor.crescendoHint')}
+      disabled={!available.crescendo}
+      onPress={() => toggleHairpin(store, 'crescendo')}
+    />
+  );
+  const diminuendoChip = (
+    <GlyphChip
+      icon='DiminuendoIcon'
+      label={t('editor.diminuendo')}
+      hint={t('editor.diminuendoHint')}
+      disabled={!available.diminuendo}
+      onPress={() => toggleHairpin(store, 'diminuendo')}
+    />
+  );
+  const arpeggiateChip = (
+    <GlyphChip
+      icon='ArpeggioIcon'
+      label={t('editor.arpeggiate')}
+      hint={t('editor.arpeggiateHint')}
+      disabled={!available.arpeggiate}
+      onPress={() => toggleArpeggiate(store)}
+    />
+  );
+  const fermataChip = (
+    <GlyphChip
+      icon='FermataIcon'
+      label={t('editor.fermata')}
+      hint={t('editor.fermataHint')}
+      disabled={!available.fermata}
+      onPress={() => toggleFermata(store)}
+    />
+  );
+  const beamBreakChip = (
+    <GlyphChip
+      icon='BeamBreakIcon'
+      label={t('editor.beamBreak')}
+      hint={t('editor.beamBreakHint')}
+      disabled={!available.beamBreak}
+      onPress={() => changeBeam(store, 'break')}
+    />
+  );
+  const beamNoneChip = (
+    <GlyphChip
+      icon='BeamNoneIcon'
+      label={t('editor.beamNone')}
+      hint={t('editor.beamNoneHint')}
+      disabled={!available.beamNone}
+      onPress={() => changeBeam(store, 'none')}
+    />
+  );
+  // The compact sheet's rows: the same chips, gathered.
   const markControls = (
     <Group label={t('editor.articulation')}>
-      <GlyphChip
-        icon='TieIcon'
-        label={t('editor.toggleTie')}
-        hint={t('editor.toggleTie')}
-        disabled={!available.tie}
-        onPress={() => toggleTie(store, 'tieStart')}
-      />
-      <GlyphChip
-        icon='SlurIcon'
-        label={t('editor.slur')}
-        hint={t('editor.slurHint')}
-        disabled={!available.slur}
-        onPress={() => toggleSlur(store)}
-      />
-      <GlyphChip
-        icon='CrescendoIcon'
-        label={t('editor.crescendo')}
-        hint={t('editor.crescendoHint')}
-        disabled={!available.crescendo}
-        onPress={() => toggleHairpin(store, 'crescendo')}
-      />
-      <GlyphChip
-        icon='DiminuendoIcon'
-        label={t('editor.diminuendo')}
-        hint={t('editor.diminuendoHint')}
-        disabled={!available.diminuendo}
-        onPress={() => toggleHairpin(store, 'diminuendo')}
-      />
-      <GlyphChip
-        icon='ArpeggioIcon'
-        label={t('editor.arpeggiate')}
-        hint={t('editor.arpeggiateHint')}
-        disabled={!available.arpeggiate}
-        onPress={() => toggleArpeggiate(store)}
-      />
-      <GlyphChip
-        icon='FermataIcon'
-        label={t('editor.fermata')}
-        hint={t('editor.fermataHint')}
-        disabled={!available.fermata}
-        onPress={() => toggleFermata(store)}
-      />
+      {tieChip}
+      {slurChip}
+      {crescendoChip}
+      {diminuendoChip}
+      {arpeggiateChip}
+      {fermataChip}
     </Group>
   );
   const beamControls = (
     <Group label={t('editor.beamBreak')}>
-      <GlyphChip
-        icon='BeamBreakIcon'
-        label={t('editor.beamBreak')}
-        hint={t('editor.beamBreakHint')}
-        disabled={!available.beamBreak}
-        onPress={() => changeBeam(store, 'break')}
-      />
-      <GlyphChip
-        icon='BeamNoneIcon'
-        label={t('editor.beamNone')}
-        hint={t('editor.beamNoneHint')}
-        disabled={!available.beamNone}
-        onPress={() => changeBeam(store, 'none')}
-      />
+      {beamBreakChip}
+      {beamNoneChip}
     </Group>
   );
   const editModeControls = (
@@ -531,22 +613,29 @@ export function EditorToolbar({
       ))}
     </Group>
   );
+  const insertNoteChip = (
+    <GlyphChip
+      icon='InsertNoteIcon'
+      label={t('editor.insertNote')}
+      hint={t('editor.insertNoteHint')}
+      disabled={!available.insertNote}
+      onPress={() => insertDefaultNoteAtCaret(store)}
+    />
+  );
+  const insertRestChip = (
+    <GlyphChip
+      icon='InsertRestIcon'
+      label={t('editor.insertRest')}
+      hint={t('editor.insertRestHint')}
+      disabled={!available.insertRest}
+      onPress={() => insertRestAtSelection(store)}
+    />
+  );
+  // The compact sheet's row for the two.
   const insertControls = (
     <Group label={t('editor.insertNote')}>
-      <GlyphChip
-        icon='InsertNoteIcon'
-        label={t('editor.insertNote')}
-        hint={t('editor.insertNoteHint')}
-        disabled={!available.insertNote}
-        onPress={() => insertDefaultNoteAtCaret(store)}
-      />
-      <GlyphChip
-        icon='InsertRestIcon'
-        label={t('editor.insertRest')}
-        hint={t('editor.insertRestHint')}
-        disabled={!available.insertRest}
-        onPress={() => insertRestAtSelection(store)}
-      />
+      {insertNoteChip}
+      {insertRestChip}
     </Group>
   );
   const voiceRecordControl = renderVoiceRecord?.({
@@ -698,7 +787,9 @@ export function EditorToolbar({
       }
     />
   );
-  const inspectorControl = (
+  // No handler, no toggle: a bar rendered without a layout around it has no
+  // property sheet to show or hide — the web bar's rule.
+  const inspectorControl = onToggleInspector ? (
     <IconButton
       label={t('editor.toggleInspector')}
       hint={
@@ -713,7 +804,7 @@ export function EditorToolbar({
         <ChevronDoubleLeftIcon size={ICON_SIZE} color={ink.foreground} />
       )}
     </IconButton>
-  );
+  ) : null;
 
   // The modals that the controls open — shared by both arrangements.
   const sheets = (
@@ -789,11 +880,17 @@ export function EditorToolbar({
         label: t('editor.editMode'),
         control: editModeControls,
       },
-      {
-        key: 'voice-record',
-        label: t('editor.recordVoice'),
-        control: voiceRecordControl,
-      },
+      // Only where the host offers recording: without `renderVoiceRecord`
+      // this was a row named "Record voice" with nothing in it.
+      ...(voiceRecordControl
+        ? [
+            {
+              key: 'voice-record',
+              label: t('editor.recordVoice'),
+              control: voiceRecordControl,
+            },
+          ]
+        : []),
       {
         key: 'quantize',
         label: t('editor.quantizeGrid'),
@@ -859,7 +956,17 @@ export function EditorToolbar({
       // the size-class threshold.
       className='bg-card flex-row flex-wrap items-center gap-1 px-2 py-1'
     >
+      {/*
+        The web bar's sequence, control for control — music_types'
+        `TOOLBAR_CONTROLS` order, with the dividers where the web draws them:
+        tracks ¦ note value ¦ accidental ¦ articulation, ornament, tie ¦ the
+        edit modes and everything that writes or marks a note ¦ quantize ¦
+        voices ¦ more. Voice recording sits with Add Track, as there: both add
+        a part. (This bar had the edit modes after the marks, the fermata
+        ahead of the beams and Insert Rest ahead of Note Input.)
+      */}
       {addTrackControl}
+      {voiceRecordControl}
       <Divider />
       {noteDurationControl}
       {durationModifierControls}
@@ -868,13 +975,19 @@ export function EditorToolbar({
       <Divider />
       {articulationControl}
       {ornamentControl}
-      {markControls}
-      {beamControls}
+      {tieChip}
       <Divider />
       {editModeControls}
-      {insertControls}
+      {insertNoteChip}
+      {slurChip}
+      {crescendoChip}
+      {diminuendoChip}
+      {arpeggiateChip}
+      {beamBreakChip}
+      {beamNoneChip}
+      {fermataChip}
       {noteInputControl}
-      {voiceRecordControl}
+      {insertRestChip}
       <Divider />
       {quantizeControls}
       <Divider />
@@ -889,9 +1002,11 @@ export function EditorToolbar({
         {trackInfoControl}
         {pitchControl}
       </View>
-      <View className='flex-row shrink-0 items-center pr-1'>
-        {inspectorControl}
-      </View>
+      {inspectorControl ? (
+        <View className='flex-row shrink-0 items-center pr-1'>
+          {inspectorControl}
+        </View>
+      ) : null}
       {sheets}
     </View>
   );

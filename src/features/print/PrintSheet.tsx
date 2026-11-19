@@ -28,6 +28,7 @@ import { WHOLE_SCORE } from '@sudobility/music_drawing';
 import type { PrintPlanOptions } from '@sudobility/music_drawing';
 import type { Score } from '@sudobility/music_types';
 import { Field } from '../inspector';
+import { hostHasKey } from '../../i18n/host-key';
 import { ORIENTATION_OPTIONS, PAPER_OPTIONS } from '@sudobility/music_types';
 import type { PaperOrientation, PaperSize } from '@sudobility/music_types';
 
@@ -74,7 +75,7 @@ export function PrintSheet({
   onPaperSizeChange,
   defaultPaperSize,
 }: PrintSheetProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   // The shared options hook holds scope and orientation (about this printout)
   // and reflects the remembered paper (about the printer) back through
   // onPaperSizeChange — the same split the web print view uses.
@@ -108,6 +109,16 @@ export function PrintSheet({
         {
           label: t('print.action'),
           loading: printing,
+          /*
+            While the pages are being drawn the web's button reads "Preparing
+            pages…" beside its spinner. This one draws the spinner alone, so
+            the words are its accessible name for the wait — where the host
+            carries them; "Print" on a button that cannot print is what a
+            screen reader got instead.
+          */
+          ...(printing && hostHasKey(i18n, 'print.preparing')
+            ? { accessibilityLabel: t('print.preparing') }
+            : {}),
           onPress: () =>
             onPrint({
               scope: effectiveScope,

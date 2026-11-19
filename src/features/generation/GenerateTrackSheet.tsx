@@ -10,33 +10,39 @@
  * The instrument list is the shared catalogue: all 128 GM programs by family,
  * with the eight drum kits ahead of them. A kit is chosen as a kit rather than
  * as a program, because on a percussion track `midiProgram` names a kit and the
- * two never agree — Brush is 40 and program 40 is Violin.
+ * two never agree — Brush is 40 and program 40 is Violin. The list itself is
+ * music_types' `generationInstrumentOptionsFlat({ voices: false })` — "the
+ * Generate Track list" in its own words — rather than one assembled here from
+ * the kits and families, which was the same list only for as long as nobody
+ * edited either.
+ *
+ * **The request names its backend, as the web's does.** The web dialog hands
+ * the chosen model to its caller, which tags the request with
+ * `withGenerationVariant`; this sheet builds the request itself, so it tags it
+ * here. Untagged, a request goes to the server's default backend — a different
+ * one from the `generationVariant` preference's default that New Project and
+ * Replace already send — so "add a track" was written by a different model
+ * than everything else in the same project. The picker is drawn when the host
+ * injects the device-prefs store the choice is remembered in.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { FormModal, Input, Select, Text } from '@sudobility/components-rn';
 import {
   estimateGenerateTrackCredits,
   DEFAULT_INSTRUMENT_VALUE,
-  FAMILY_GROUPS,
-  KIT_OPTIONS,
   buildGenerateTrackRequest,
   instrumentChoiceFor,
 } from '@sudobility/music_lib';
 import type { GenerateTrackRequest } from '@sudobility/music_lib';
+import {
+  generationInstrumentOptionsFlat,
+  withGenerationVariant,
+} from '@sudobility/music_types';
 import type { Score } from '@sudobility/music_types';
-
-/** Kits first: they are addressed differently and must not be mistaken for programs. */
-const INSTRUMENT_OPTIONS: readonly { value: string; label: string }[] = [
-  ...KIT_OPTIONS.map(kit => ({ value: kit.value, label: kit.label })),
-  ...FAMILY_GROUPS.flatMap(group =>
-    group.instruments.map(instrument => ({
-      value: String(instrument.program),
-      label: `${group.label} · ${instrument.name}`,
-    }))
-  ),
-];
+import { useGenerationModel } from './useGenerationModel';
+import type { GenerationModelPrefsStore } from './useGenerationModel';
 
 export type GenerateTrackSheetProps = {
   open: boolean;
@@ -49,6 +55,13 @@ export type GenerateTrackSheetProps = {
    * server has answered.
    */
   submitting?: boolean;
+  /**
+   * The device-prefs store (the app's `devicePrefs`). With it the sheet offers
+   * the web dialog's Model picker, seeded from and written back to the
+   * `generationVariant` preference; without it there is no picker and the
+   * request carries the default backend.
+   */
+  devicePrefs?: GenerationModelPrefsStore;
 };
 
 function ignore(): void {}
@@ -59,10 +72,18 @@ export function GenerateTrackSheet({
   onClose,
   onSubmit,
   submitting = false,
+  devicePrefs,
 }: GenerateTrackSheetProps) {
   const { t } = useTranslation();
   const [prompt, setPrompt] = useState('');
   const [value, setValue] = useState(DEFAULT_INSTRUMENT_VALUE);
+  const model = useGenerationModel(devicePrefs);
+  // Kits first: they are addressed differently and must not be mistaken for
+  // programs. No voices — this adds an accompanying part, not a singer.
+  const instrumentOptions = useMemo(
+    () => generationInstrumentOptionsFlat({ voices: false }),
+    []
+  );
 
   useEffect(() => {
     if (open) setPrompt('');
@@ -90,10 +111,13 @@ export function GenerateTrackSheet({
           loading: submitting,
           onPress: () =>
             onSubmit(
-              buildGenerateTrackRequest(
-                score,
-                trimmed,
-                instrumentChoiceFor(value)
+              withGenerationVariant(
+                buildGenerateTrackRequest(
+                  score,
+                  trimmed,
+                  instrumentChoiceFor(value)
+                ),
+                model.selected
               )
             ),
         },
@@ -125,10 +149,27 @@ export function GenerateTrackSheet({
           <Select
             value={value}
             accessibilityLabel={t('generate.instrument')}
-            options={[...INSTRUMENT_OPTIONS]}
+            options={instrumentOptions}
             onValueChange={setValue}
           />
         </View>
+
+        {model.choosable ? (
+          <View className='gap-1 pb-3'>
+            <Text className='text-muted-foreground text-sm'>
+              {t('generateScore.model')}
+            </Text>
+            <Select
+              value={model.selected}
+              accessibilityLabel={t('generateScore.model')}
+              options={model.providers.map(({ value: variant, label }) => ({
+                value: variant,
+                label,
+              }))}
+              onValueChange={model.setSelected}
+            />
+          </View>
+        ) : null}
 
         {/* Every bar of the score, once: what the server bills for a new part. */}
         <Text className='text-muted-foreground text-sm'>

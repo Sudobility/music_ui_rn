@@ -15,6 +15,11 @@
  * Cancel is offered because it is cheap and honest: cancelling writes `ready`,
  * and the running job discards its result when it next looks — including
  * between chunks of a long one. The notes written so far stay.
+ *
+ * This is `@sudobility/music_ui`'s `GenerationStatusStrip`, and is exported
+ * under that name too. `GenerationOverlay` and its `visible` prop are what is
+ * left of the full-screen cover this once was; the web mounts the strip only
+ * while a job runs, so `visible` defaults to true and a host may do the same.
  */
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -25,29 +30,42 @@ import type {
   ProjectStatus,
 } from '@sudobility/music_types';
 import type { LiveStatus } from '@sudobility/music_client';
+import { hostKey } from '../../i18n/host-key';
+
+/** The web strip's props, as the web names and types them. */
+export type GenerationStatusStripProps = {
+  /**
+   * Which kind of job it is. The two lock the editor identically and stream
+   * the same way; what differs is the sentence, since "generating" over a
+   * recording somebody uploaded describes something that is not happening.
+   */
+  status?: ProjectStatus;
+  onCancel: () => void;
+  /** The stream's last progress note, when there is one. */
+  progress?: LiveGenerationProgress | null;
+  /** Where the live stream stands: only its troubles are worth a word. */
+  live?: LiveStatus;
+  /** Shown beside the heading when a job reported one. */
+  error?: string | null;
+};
+
+export type GenerationOverlayProps = GenerationStatusStripProps & {
+  /**
+   * False renders nothing. Native-only, and optional: the web's strip has no
+   * such prop because its host mounts it only while a job owns the project.
+   */
+  visible?: boolean;
+};
 
 export function GenerationOverlay({
-  visible,
+  visible = true,
   status = 'generating',
   error,
   progress = null,
   live = 'off',
   onCancel,
-}: {
-  visible: boolean;
-  /**
-   * Which kind of job it is. The two lock the editor identically and stream
-   * the same way; what differs is the sentence.
-   */
-  status?: ProjectStatus;
-  error: string | null;
-  /** The stream's last progress note, when there is one. */
-  progress?: LiveGenerationProgress | null;
-  /** Where the live stream stands: only its troubles are worth a word. */
-  live?: LiveStatus;
-  onCancel: () => void;
-}) {
-  const { t } = useTranslation();
+}: GenerationOverlayProps) {
+  const { t, i18n } = useTranslation();
   if (!visible) return null;
   const transcribing = status === 'transcribing';
   return (
@@ -58,7 +76,13 @@ export function GenerationOverlay({
     >
       <Spinner />
       <Text className='text-foreground text-base'>
-        {t(transcribing ? 'overlay.transcribingNotes' : 'generate.working')}
+        {t(
+          transcribing
+            ? 'overlay.transcribingNotes'
+            : // The web's heading, where the host carries it; the sibling
+              // `overlay.transcribingNotes` beside it is already one key.
+              hostKey(i18n, 'overlay.generatingNotes', 'generate.working')
+        )}
       </Text>
       {progress ? (
         <Text className='text-muted-foreground text-sm'>
@@ -94,4 +118,14 @@ export function GenerationOverlay({
       </Button>
     </View>
   );
+}
+
+/**
+ * The same strip under the web library's name, with the web's props.
+ *
+ * A name of its own rather than a second implementation: one component, so the
+ * two names cannot drift.
+ */
+export function GenerationStatusStrip(props: GenerationStatusStripProps) {
+  return <GenerationOverlay {...props} />;
 }

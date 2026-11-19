@@ -99,3 +99,10 @@ export function GoToBarSheet({
     </FormModal>
   );
 }
+
+/*
+  The web library's names for the same component and props — identical on both
+  sides (`open`, `barCount`, `onClose`, `onGo`).
+*/
+export type GoToBarDialogProps = GoToBarSheetProps;
+export const GoToBarDialog = GoToBarSheet;

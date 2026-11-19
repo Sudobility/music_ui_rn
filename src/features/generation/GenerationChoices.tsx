@@ -41,7 +41,7 @@ export type GenerationChoicesProps = {
    * The locked choices, in the order they are shown. Answers once the job has
    * been accepted (or refused): until then the confirm spins and stays up.
    */
-  onGenerateAgain: (lockedKeys: LockableChoice[]) => void | Promise<void>;
+  onGenerateAgain: (lockedKeys: LockableChoice[]) => void | Promise<unknown>;
 };
 
 export function GenerationChoices({

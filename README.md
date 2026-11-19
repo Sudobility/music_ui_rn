@@ -29,6 +29,27 @@ stack**:
 - **No strings.** Components call `useTranslation()` against the host's
   i18next; the package ships no `resources`.
 
+## Mirror of the web library
+
+`@sudobility/music_ui` is the same library for the web, and this one follows it:
+the same exported names and props, the same parts in the same order, the same
+i18n keys, the same calls into the music libraries.
+
+- A web component whose native twin has another name is exported under both —
+  `ConfirmDialog` / `ConfirmSheet`, `ChoiceDialog` / `ChoiceSheet`,
+  `GoToBarDialog`, `InsertBarsDialog`, `ReplaceMusicDialog`,
+  `GenerationStatusStrip` / `GenerationOverlay`, `ExportScopeDialog`,
+  `PendingButton`, the named notation glyphs (`SharpIcon`, …), `usePendingKeys`,
+  `usePlaybackPosition` / `usePlaybackReadout` / `usePlayingPitches`,
+  `useResolvedColorScheme` and friends.
+- `src/web-surface-parity.test.ts` reads the sibling `../music_ui` checkout and
+  fails on any web export that is neither exported here nor listed with a
+  reason (web-only by nature, here under a different shape, or not here yet).
+  That file is the current list of gaps.
+- Labels are asked for by the web's key once the host app's locale carries it
+  (`src/i18n/host-key.ts`), and by the native key it replaces until then — so
+  several mirrored wordings take effect when the app adds the string.
+
 ## Requirements
 
 - Node >= 18, [Bun](https://bun.sh) (the repo is Bun-first; `bun.lock` is

@@ -20,6 +20,7 @@ import { useStore } from 'zustand';
 import { useTranslation } from 'react-i18next';
 import { SpatialView } from '@sudobility/music_spatial_rn';
 import { controlLocked, selectEditLocked } from '@sudobility/music_editing';
+import type { PlaybackBus } from '@sudobility/music_types';
 import { useNotationInk } from '../../icons';
 import type { MusicDocument } from '../../types';
 import { useSoundingTrackIds } from './useSoundingTrackIds';
@@ -38,9 +39,16 @@ export type SpatialSectionProps = {
    * tracks can always be moved; the editor omits it and takes the rule.
    */
   locked?: boolean;
+  /**
+   * The player's bus, for the sounding notes — the web section's prop. The
+   * editor leaves it to the default, the registered player; a page with a
+   * player of its own passes that player's bus, so the stage lights up to
+   * *that* page's playback rather than to an app-wide player nobody started.
+   */
+  bus?: PlaybackBus;
 };
 
-export function SpatialSection({ store, locked }: SpatialSectionProps) {
+export function SpatialSection({ store, locked, bus }: SpatialSectionProps) {
   const { t } = useTranslation();
   const ink = useNotationInk();
   const score = useStore(store, s => s.score);
@@ -49,7 +57,7 @@ export function SpatialSection({ store, locked }: SpatialSectionProps) {
     s => selectEditLocked(s) && controlLocked(s, 'unpluggedArrangement')
   );
   const effectiveLocked = locked ?? ruleLocked;
-  const soundingTrackIds = useSoundingTrackIds();
+  const soundingTrackIds = useSoundingTrackIds(bus);
 
   useEffect(() => {
     store.getState().setUnpluggedActive(true);

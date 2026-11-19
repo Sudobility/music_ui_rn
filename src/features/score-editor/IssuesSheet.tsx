@@ -19,15 +19,28 @@
  * so a press that repaired nothing looked exactly like a press that did not
  * register. The toast goes through the document store's `pushToast`, which
  * reaches the app's one queue whichever tab raised it.
+ *
+ * **An issue is a place in the score, and pressing it goes there** — the web
+ * list's `navigateToIssue`, on the same three ids in the same order: the note
+ * the issue names if it is still there, else its bar, else its track; then the
+ * list closes so the selection it just made is visible. The rows were plain
+ * text here, so a reader was told bar 14 was wrong and left to find bar 14.
+ *
+ * **Fix all is refused while the score is locked** — playing, or owned by a
+ * job — as the web's is: a repair is a content edit the store would decline, so
+ * the button says so rather than ending in a "fixed nothing" toast.
  */
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useStore } from 'zustand';
 import { useTranslation } from 'react-i18next';
 import { FormModal, Text } from '@sudobility/components-rn';
 import {
   repairAllIssues,
   repairIssuesOutcome,
+  selectEditLocked,
 } from '@sudobility/music_editing';
+import { findEvent, findMeasure, findTrack } from '@sudobility/music_types';
+import type { ValidationIssue } from '@sudobility/music_types';
 import type { MusicDocument } from '../../types';
 
 export function IssuesSheet({
@@ -41,6 +54,31 @@ export function IssuesSheet({
 }) {
   const { t } = useTranslation();
   const issues = useStore(document.store, s => s.validationIssues);
+  // Both locks: the transport playing, and a job owning the score — the web's
+  // `playbackState === 'playing' || generating`, the latter being exactly when
+  // its layout holds the store's edit lock.
+  const locked = useStore(
+    document.store,
+    s => selectEditLocked(s) || s.editLocked
+  );
+
+  const navigateToIssue = (issue: ValidationIssue): void => {
+    const state = document.store.getState();
+    const score = state.score;
+    if (!score) return;
+    if (issue.objectId && findEvent(score, issue.objectId)) {
+      state.setSelection({
+        eventIds: [issue.objectId],
+        measureIds: [],
+        trackIds: [],
+      });
+    } else if (issue.measureId && findMeasure(score, issue.measureId)) {
+      state.selectMeasures([issue.measureId]);
+    } else if (issue.trackId && findTrack(score, issue.trackId)) {
+      state.selectTrack(issue.trackId);
+    }
+    onClose();
+  };
 
   return (
     <FormModal
@@ -65,7 +103,7 @@ export function IssuesSheet({
             // still something here that needs a decision.
             if (outcome.close) onClose();
           },
-          disabled: issues.length === 0,
+          disabled: issues.length === 0 || locked,
         },
       ]}
     >
@@ -75,18 +113,30 @@ export function IssuesSheet({
             {t('editor.noIssues')}
           </Text>
         ) : (
-          issues.map((issue, index) => (
-            <Text
-              key={`${issue.code}-${index}`}
-              className={
-                issue.severity === 'error'
-                  ? 'text-destructive text-base'
-                  : 'text-foreground text-base'
-              }
-            >
-              {issue.message}
-            </Text>
-          ))
+          issues.map((issue, index) => {
+            const go = () => navigateToIssue(issue);
+            return (
+              <Pressable
+                key={`${issue.code}-${index}`}
+                accessibilityRole='button'
+                accessibilityLabel={issue.message}
+                onPress={go}
+                // macOS has no synthesized-touch fallback for an assistive
+                // press: VoiceOver reaches a Pressable only through this.
+                onAccessibilityTap={go}
+              >
+                <Text
+                  className={
+                    issue.severity === 'error'
+                      ? 'text-destructive text-base'
+                      : 'text-foreground text-base'
+                  }
+                >
+                  {issue.message}
+                </Text>
+              </Pressable>
+            );
+          })
         )}
       </View>
     </FormModal>

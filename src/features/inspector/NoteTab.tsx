@@ -68,6 +68,7 @@ import {
   PITCH_STEPS,
   barBeatCommitTick,
   barBeatForTick,
+  durationLabel,
   findEvent,
   formatBeatForField,
 } from '@sudobility/music_types';
@@ -81,6 +82,7 @@ import type {
   PitchStep,
   Score,
 } from '@sudobility/music_types';
+import { hostKey } from '../../i18n/host-key';
 import { DraftInput, NumberDraftInput } from './DraftInput';
 import { EmptyTab, Field } from './Field';
 import { ReplaceButton } from './ReplaceButton';
@@ -94,7 +96,7 @@ export function NoteTab({
   document: MusicDocument;
   onReplace?: (scope: ReplaceScope) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const store = document.store;
   const score = useStore(store, s => s.score);
   const pitchDisplay = useStore(store, s => s.pitchDisplay);
@@ -178,7 +180,11 @@ export function NoteTab({
           <Field label={t('inspector.pitch')}>
             <Select
               value={step ?? ''}
-              accessibilityLabel={t('inspector.pitch')}
+              // "Pitch step" to assistive technology, as on the web: of the
+              // three controls on this row it is the letter, not the pitch.
+              accessibilityLabel={t(
+                hostKey(i18n, 'inspector.pitchStep', 'inspector.pitch')
+              )}
               disabled={locked}
               placeholder={mixed}
               options={PITCH_STEPS.map((s: PitchStep) => ({
@@ -239,15 +245,42 @@ export function NoteTab({
               ? t('inspector.customDuration', { ticks: duration.ticks })
               : mixed
           }
+          /*
+            The host's word for a note value where it has one, and
+            music_types' `durationLabel` — what the web picker prints — where
+            it does not. Both apps' locales name the six plain values and none
+            of the twelve dotted and triplet ones, so this list read
+            `duration.dotted-quarter` for two entries in three.
+          */
           options={DURATION_NAMES.map((name: DurationName) => ({
             value: name,
-            label: t(`duration.${name}`),
+            label: i18n.exists(`duration.${name}`)
+              ? t(`duration.${name}`)
+              : durationLabel(name),
           }))}
           onValueChange={(value: string) =>
             changeDuration(store, value as DurationName)
           }
         />
       </Field>
+
+      {/*
+        Where the note sits, counted the way a player counts — `barBeatForTick`
+        skips pickups, so this is the bar they would count. Editable, as the
+        web's is: typing a bar or a beat moves the note, because stating a
+        position exactly is the reason to have this field at all. For one note
+        only (the web rule): a position typed over several would stack them.
+      */}
+      {notes.length === 1 ? (
+        <BarBeatFields
+          store={store}
+          score={score}
+          noteId={first.id}
+          tick={first.startTick}
+          editable={!locked}
+          onCommit={tick => moveNoteToTick(store, first.id, tick)}
+        />
+      ) : null}
 
       {/*
         The note's own velocity, which a dynamic does not overwrite — it is the
@@ -315,62 +348,6 @@ export function NoteTab({
         />
       </Field>
 
-      {/*
-        Free text belonging to one notehead each, so shown for exactly one note
-        (`noteTextFieldsVisible`): a draft seeded from the first of several
-        notes would overwrite the rest with its value on blur.
-      */}
-      {noteTextFieldsVisible(notes) ? (
-        <Field label={t('inspector.chordSymbol')}>
-          {/*
-          Stored as typed. `C-7`, `Cmin7` and `Cm7` are one chord written three
-          ways, and only the root is ever parsed.
-        */}
-          <DraftInput
-            value={first.chordSymbol ?? ''}
-            placeholder={t('inspector.chordSymbolPlaceholder')}
-            editable={!locked}
-            onCommit={text => setChordSymbol(store, first.id, text)}
-            accessibilityLabel={t('inspector.chordSymbol')}
-          />
-        </Field>
-      ) : null}
-
-      {noteTextFieldsVisible(notes) ? (
-        <Field label={t('inspector.fingering')}>
-          {/*
-          A string, not a number: piano uses 1-5, guitar adds `T`, and editions
-          write `1-2` for a substitution.
-        */}
-          <DraftInput
-            value={first.fingering ?? ''}
-            editable={!locked}
-            // `setFingering` trims and clears on blank; text that trims to
-            // what the note already carries writes nothing and resets.
-            onCommit={text => setFingering(store, text)}
-            accessibilityLabel={t('inspector.fingering')}
-          />
-        </Field>
-      ) : null}
-
-      {/*
-        Where the note sits, counted the way a player counts — `barBeatForTick`
-        skips pickups, so this is the bar they would count. Editable, as the
-        web's is: typing a bar or a beat moves the note, because stating a
-        position exactly is the reason to have this field at all. For one note
-        only (the web rule): a position typed over several would stack them.
-      */}
-      {notes.length === 1 ? (
-        <BarBeatFields
-          store={store}
-          score={score}
-          noteId={first.id}
-          tick={first.startTick}
-          editable={!locked}
-          onCommit={tick => moveNoteToTick(store, first.id, tick)}
-        />
-      ) : null}
-
       <View className='flex-row gap-2'>
         {/* Which part this note is in. Read-only: a note is moved between
             tracks by dragging it, not by retyping the track's name here. */}
@@ -415,28 +392,58 @@ export function NoteTab({
         apart from the slur beside it, which groups different pitches as one
         phrase and joins nothing.
       */}
-      <View className='flex-row items-center justify-between'>
-        <Text className='text-foreground text-base'>
-          {t('inspector.tieStart')}
-        </Text>
-        <Switch
-          checked={tieStart === true}
-          disabled={locked}
-          onCheckedChange={() => toggleTie(store, 'tieStart')}
-          accessibilityLabel={t('inspector.tieStart')}
-        />
-      </View>
-      <View className='flex-row items-center justify-between'>
-        <Text className='text-foreground text-base'>
-          {t('inspector.tieStop')}
-        </Text>
-        <Switch
-          checked={tieStop === true}
-          disabled={locked}
-          onCheckedChange={() => toggleTie(store, 'tieStop')}
-          accessibilityLabel={t('inspector.tieStop')}
-        />
-      </View>
+      <TieToggle
+        label={t('inspector.tieStart')}
+        value={tieStart}
+        mixedLabel={mixed}
+        disabled={locked}
+        onToggle={() => toggleTie(store, 'tieStart')}
+      />
+      <TieToggle
+        label={t('inspector.tieStop')}
+        value={tieStop}
+        mixedLabel={mixed}
+        disabled={locked}
+        onToggle={() => toggleTie(store, 'tieStop')}
+      />
+
+      {/*
+        Free text belonging to one notehead each, so shown for exactly one note
+        (`noteTextFieldsVisible`): a draft seeded from the first of several
+        notes would overwrite the rest with its value on blur.
+      */}
+      {noteTextFieldsVisible(notes) ? (
+        <Field label={t('inspector.chordSymbol')}>
+          {/*
+          Stored as typed. `C-7`, `Cmin7` and `Cm7` are one chord written three
+          ways, and only the root is ever parsed.
+        */}
+          <DraftInput
+            value={first.chordSymbol ?? ''}
+            placeholder={t('inspector.chordSymbolPlaceholder')}
+            editable={!locked}
+            onCommit={text => setChordSymbol(store, first.id, text)}
+            accessibilityLabel={t('inspector.chordSymbol')}
+          />
+        </Field>
+      ) : null}
+
+      {noteTextFieldsVisible(notes) ? (
+        <Field label={t('inspector.fingering')}>
+          {/*
+          A string, not a number: piano uses 1-5, guitar adds `T`, and editions
+          write `1-2` for a substitution.
+        */}
+          <DraftInput
+            value={first.fingering ?? ''}
+            editable={!locked}
+            // `setFingering` trims and clears on blank; text that trims to
+            // what the note already carries writes nothing and resets.
+            onCommit={text => setFingering(store, text)}
+            accessibilityLabel={t('inspector.fingering')}
+          />
+        </Field>
+      ) : null}
 
       {/*
         Spans need two notes — a slide from a note to itself is nothing — so
@@ -445,14 +452,6 @@ export function NoteTab({
       */}
       <Field label={t('inspector.spans')}>
         <View className='flex-row flex-wrap gap-2'>
-          <Button
-            variant='secondary'
-            disabled={locked || notes.length < 2}
-            onPress={() => toggleGlissando(store)}
-            accessibilityLabel={t('inspector.glissando')}
-          >
-            {t('inspector.glissando')}
-          </Button>
           {/*
             The octave brackets, which this panel had no way to apply at all.
 
@@ -460,7 +459,7 @@ export function NoteTab({
             *sounding* pitch, and `8va` means "these were written an octave
             lower to keep them on the stave" — `ottavaScore` shifts the
             noteheads the opposite way from the bracket. Two notes minimum, like
-            every other span here.
+            every other span here. Ahead of the slide, as the web lists them.
           */}
           {OTTAVAS.map(kind => (
             <Button
@@ -473,6 +472,14 @@ export function NoteTab({
               {kind}
             </Button>
           ))}
+          <Button
+            variant='secondary'
+            disabled={locked || notes.length < 2}
+            onPress={() => toggleGlissando(store)}
+            accessibilityLabel={t('inspector.glissando')}
+          >
+            {t('inspector.glissando')}
+          </Button>
         </View>
       </Field>
 
@@ -516,6 +523,48 @@ export function NoteTab({
           onReplace={onReplace}
         />
       ) : null}
+    </View>
+  );
+}
+
+/**
+ * One end of a tie, with the third state a selection can be in.
+ *
+ * `value` is `noteInspectorModel`'s: true or false where the selected notes
+ * agree, `null` where they do not. The web draws that as an indeterminate
+ * checkbox; a switch has no such position, and drawn simply as "off" a mixed
+ * selection read as "none of these are tied" — and the press that followed
+ * toggled notes the reader did not know were tied. So the row says "Mixed", in
+ * the same word every other field on this tab uses for it.
+ */
+function TieToggle({
+  label,
+  value,
+  mixedLabel,
+  disabled,
+  onToggle,
+}: {
+  label: string;
+  value: boolean | null;
+  mixedLabel: string;
+  disabled: boolean;
+  onToggle: () => void;
+}) {
+  const isMixed = value === null;
+  return (
+    <View className='flex-row items-center justify-between'>
+      <Text className='text-foreground text-base'>{label}</Text>
+      <View className='flex-row items-center gap-2'>
+        {isMixed ? (
+          <Text className='text-muted-foreground text-sm'>{mixedLabel}</Text>
+        ) : null}
+        <Switch
+          checked={value === true}
+          disabled={disabled}
+          onCheckedChange={onToggle}
+          accessibilityLabel={isMixed ? `${label}, ${mixedLabel}` : label}
+        />
+      </View>
     </View>
   );
 }

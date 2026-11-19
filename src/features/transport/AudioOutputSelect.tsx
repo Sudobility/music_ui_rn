@@ -29,6 +29,17 @@ type PopupMenu = {
   ): Promise<string | null>;
 };
 
+/**
+ * Whether this platform's synth can be routed to a chosen output at all.
+ *
+ * The control renders nothing where it cannot, as the web's does where the
+ * browser has no `setSinkId` — and a host that gives the control a *row* (the
+ * compact transport's "more" sheet) asks this first, or every phone gets a row
+ * labelled "Audio output" with nothing in it.
+ */
+export const AUDIO_OUTPUT_SELECTABLE =
+  Platform.OS === 'macos' || Platform.OS === 'windows';
+
 /** The desktop synths route to a chosen CoreAudio or WASAPI output. */
 export function AudioOutputSelect() {
   const { t } = useTranslation();
@@ -41,7 +52,7 @@ export function AudioOutputSelect() {
   const [busy, setBusy] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
-  if (Platform.OS !== 'macos' && Platform.OS !== 'windows') return null;
+  if (!AUDIO_OUTPUT_SELECTABLE) return null;
 
   const choose = async (id: string) => {
     setOpen(false);
